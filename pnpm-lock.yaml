@@ -6,9 +6,15 @@ settings:
 
 catalogs:
   default:
+    '@faker-js/faker':
+      specifier: 10.2.0
+      version: 10.2.0
     eslint:
       specifier: ^10.2.0
       version: 10.2.1
+    fast-check:
+      specifier: ^4.5.3
+      version: 4.7.0
     prettier:
       specifier: 3.8.3
       version: 3.8.3
@@ -89,8 +95,8 @@ importers:
         specifier: workspace:*
         version: link:../vitest-config
       fast-check:
-        specifier: ^3.16.0
-        version: 3.23.2
+        specifier: 'catalog:'
+        version: 4.7.0
       vitest:
         specifier: catalog:vitest4
         version: 4.0.17(@types/node@22.15.3)(@vitest/ui@4.0.17)(jiti@2.6.1)(jsdom@29.1.1)(yaml@2.8.3)
@@ -134,9 +140,15 @@ importers:
         specifier: workspace:*
         version: link:../domain
     devDependencies:
+      '@faker-js/faker':
+        specifier: 'catalog:'
+        version: 10.2.0
       '@workspace/vitest-config':
         specifier: workspace:*
         version: link:../vitest-config
+      fast-check:
+        specifier: 'catalog:'
+        version: 4.7.0
       vitest:
         specifier: catalog:vitest4
         version: 4.0.17(@types/node@22.15.3)(@vitest/ui@4.0.17)(jiti@2.6.1)(jsdom@29.1.1)(yaml@2.8.3)
@@ -585,6 +597,10 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@faker-js/faker@10.2.0':
+    resolution: {integrity: sha512-rTXwAsIxpCqzUnZvrxVh3L0QA0NzToqWBLAhV+zDV3MIIwiQhAZHMdPCIaj5n/yADu/tyk12wIPgL6YHGXJP+g==}
+    engines: {node: ^20.19.0 || ^22.13.0 || ^23.5.0 || >=24.0.0, npm: '>=10'}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -1179,9 +1195,9 @@ packages:
     resolution: {integrity: sha512-knvyeauYhqjOYvQ66MznSMs83wmHrCycNEN6Ao+2AeYEfxUIkuiVxdEa1qlGEPK+We3n0THiDciYSsCcgW/DoA==}
     engines: {node: '>=12.0.0'}
 
-  fast-check@3.23.2:
-    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
-    engines: {node: '>=8.0.0'}
+  fast-check@4.7.0:
+    resolution: {integrity: sha512-NsZRtqvSSoCP0HbNjUD+r1JH8zqZalyp6gLY9e7OYs7NK9b6AHOs2baBFeBG7bVNsuoukh89x2Yg3rPsul8ziQ==}
+    engines: {node: '>=12.17.0'}
 
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
@@ -1540,8 +1556,8 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  pure-rand@6.1.0:
-    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
+  pure-rand@8.4.0:
+    resolution: {integrity: sha512-IoM8YF/jY0hiugFo/wOWqfmarlE6J0wc6fDK1PhftMk7MGhVZl88sZimmqBBFomLOCSmcCCpsfj7wXASCpvK9A==}
 
   require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
@@ -2224,6 +2240,8 @@ snapshots:
 
   '@exodus/bytes@1.15.0': {}
 
+  '@faker-js/faker@10.2.0': {}
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.7':
@@ -2817,9 +2835,9 @@ snapshots:
 
   expect-type@1.3.0: {}
 
-  fast-check@3.23.2:
+  fast-check@4.7.0:
     dependencies:
-      pure-rand: 6.1.0
+      pure-rand: 8.4.0
 
   fast-deep-equal@3.1.3: {}
 
@@ -3144,7 +3162,7 @@ snapshots:
 
   punycode@2.3.1: {}
 
-  pure-rand@6.1.0: {}
+  pure-rand@8.4.0: {}
 
   require-directory@2.1.1: {}
 
