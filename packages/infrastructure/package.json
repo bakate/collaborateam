@@ -1,0 +1,12 @@
+{
+  "name": "@collaborateam/infrastructure",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.js"
+  },
+  "dependencies": {
+    "@collaborateam/domain": "workspace:*",
+    "@collaborateam/application": "workspace:*"
+  }
+}

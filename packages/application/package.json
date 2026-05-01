@@ -1,0 +1,11 @@
+{
+  "name": "@collaborateam/application",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.js"
+  },
+  "dependencies": {
+    "@collaborateam/domain": "workspace:*"
+  }
+}
