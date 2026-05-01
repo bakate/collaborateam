@@ -1,4 +1,4 @@
-import { QueryStringParser } from '@collaborateam/domain/services/QueryStringParser';
+import { QueryStringParser } from '@workspace/domain/services/QueryStringParser';
 import { GuardExecutor } from './GuardExecutor.js';
 
 export class Router {
@@ -29,7 +29,7 @@ export class Router {
   }
 
   async navigate(fullPath) {
-    // Évite les re-rendus si on est déjà sur la route
+    // Avoid re-renders if we are already on the route
     const currentPath = this.historyAdapter.getPathname() + this.historyAdapter.getSearch();
     if (fullPath === currentPath) return;
 
@@ -68,7 +68,7 @@ export class Router {
     if (guardResult === true) {
       this.renderer.render(match.route, context);
     } else if (typeof guardResult === 'string') {
-      // Redirection si le guard renvoie une chaîne
+      // Redirect if the guard returns a string
       this.navigate(guardResult);
     }
   }

@@ -1,12 +1,19 @@
 {
-  "name": "@collaborateam/infrastructure",
+  "name": "@workspace/infrastructure",
   "version": "0.1.0",
   "type": "module",
   "exports": {
     "./*": "./src/*.js"
   },
   "dependencies": {
-    "@collaborateam/domain": "workspace:*",
-    "@collaborateam/application": "workspace:*"
+    "@workspace/domain": "workspace:*",
+    "@workspace/application": "workspace:*"
+  },
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "catalog:vitest4",
+    "@workspace/vitest-config": "workspace:*"
   }
 }

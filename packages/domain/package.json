@@ -1,8 +1,15 @@
 {
-  "name": "@collaborateam/domain",
+  "name": "@workspace/domain",
   "version": "0.1.0",
   "type": "module",
   "exports": {
     "./*": "./src/*.js"
+  },
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "catalog:vitest4",
+    "@workspace/vitest-config": "workspace:*"
   }
 }

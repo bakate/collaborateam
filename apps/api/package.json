@@ -1,13 +1,13 @@
 {
-  "name": "@collaborateam/api",
+  "name": "@workspace/api",
   "version": "0.1.0",
   "type": "module",
   "exports": {
     "./*": "./src/*.js"
   },
   "dependencies": {
-    "@collaborateam/domain": "workspace:*",
-    "@collaborateam/application": "workspace:*",
-    "@collaborateam/infrastructure": "workspace:*"
+    "@workspace/domain": "workspace:*",
+    "@workspace/application": "workspace:*",
+    "@workspace/infrastructure": "workspace:*"
   }
 }

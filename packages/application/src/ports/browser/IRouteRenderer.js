@@ -1,19 +1,19 @@
 /**
- * Interface pour le rendu des routes
+ * Interface for route rendering
  */
 export class IRouteRenderer {
   /**
-   * Rend une route spécifique
-   * @param {Object} route La définition de la route
-   * @param {Object} context Le contexte (params, query, etc.)
+   * Renders a specific route
+   * @param {Object} route The route definition
+   * @param {Object} context The context (params, query, etc.)
    */
   render(route, context) {
     throw new Error('Not implemented');
   }
 
   /**
-   * Rend la page 404
-   * @param {string} path Le chemin non trouvé
+   * Renders the 404 page
+   * @param {string} path The path not found
    */
   renderNotFound(path) {
     throw new Error('Not implemented');

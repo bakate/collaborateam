@@ -1,11 +1,11 @@
 /**
- * Interface pour les guards de route (protection d'accès)
+ * Interface for route guards (access protection)
  */
 export class RouteGuard {
   /**
-   * Vérifie si l'accès à la route est autorisé
-   * @param {Object} context Contexte de la route
-   * @returns {Promise<boolean | string>} true si autorisé, sinon le chemin de redirection
+   * Checks if access to the route is allowed
+   * @param {Object} context Route context
+   * @returns {Promise<boolean | string>} true if allowed, otherwise the redirect path
    */
   async canActivate(context) {
     throw new Error('Not implemented');

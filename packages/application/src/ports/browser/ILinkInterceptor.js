@@ -1,17 +1,17 @@
 /**
- * Interface pour intercepter les clics sur les liens
+ * Interface for intercepting link clicks
  */
 export class ILinkInterceptor {
   /**
-   * Intercepte les clics sur les liens pour faire de la navigation côté client
-   * @param {Function} callback Fonction appelée avec l'URL quand un lien est cliqué
+   * Intercepts link clicks for client-side navigation
+   * @param {Function} callback Function called with the URL when a link is clicked
    */
   intercept(callback) {
     throw new Error('Not implemented');
   }
 
   /**
-   * Nettoie les event listeners
+   * Cleans up event listeners
    */
   destroy() {
     throw new Error('Not implemented');

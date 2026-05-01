@@ -1,4 +1,4 @@
-import { IHistoryAdapter } from '@collaborateam/application';
+import { IHistoryAdapter } from '@workspace/application/ports/browser/IHistoryAdapter';
 
 export class BrowserHistoryAdapter extends IHistoryAdapter {
   constructor(windowObject) {

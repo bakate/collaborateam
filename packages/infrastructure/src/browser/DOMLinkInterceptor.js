@@ -1,4 +1,4 @@
-import { ILinkInterceptor } from '@collaborateam/application';
+import { ILinkInterceptor } from '@workspace/application/ports/browser/ILinkInterceptor';
 
 export class DOMLinkInterceptor extends ILinkInterceptor {
   /**
@@ -12,19 +12,19 @@ export class DOMLinkInterceptor extends ILinkInterceptor {
 
   intercept(callback) {
     this.clickHandler = (event) => {
-      // Trouver l'élément <a> le plus proche
+      // Find the closest <a> element
       const target = event.target.closest('a');
       
       if (!target) return;
       
-      // Ne pas intercepter les liens avec target="_blank"
+      // Do not intercept links with target="_blank"
       if (target.hasAttribute('target') && target.getAttribute('target') === '_blank') return;
       
-      // Ne pas intercepter les liens externes
+      // Do not intercept external links
       const href = target.getAttribute('href');
       if (!href || href.startsWith('http')) return;
       
-      // Ne pas intercepter si un modifier key est pressé
+      // Do not intercept if a modifier key is pressed
       if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
       
       event.preventDefault();

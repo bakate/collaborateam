@@ -1,7 +1,7 @@
 export class QueryStringParser {
   /**
-   * Parse une query string en objet clé-valeur
-   * @param {string} search La query string, ex: "?sort=asc&page=2"
+   * Parses a query string into a key-value object
+   * @param {string} search The query string, e.g: "?sort=asc&page=2"
    * @returns {Object.<string, string>}
    */
   static parse(search) {
@@ -24,8 +24,8 @@ export class QueryStringParser {
   }
 
   /**
-   * Sépare un pathname complet de sa query string
-   * @param {string} fullPath Le chemin complet, ex: "/projects?sort=asc"
+   * Separates a full pathname from its query string
+   * @param {string} fullPath The full path, e.g: "/projects?sort=asc"
    * @returns {{ pathname: string, search: string }}
    */
   static parsePath(fullPath) {

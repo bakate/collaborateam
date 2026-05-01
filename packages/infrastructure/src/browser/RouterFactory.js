@@ -1,11 +1,12 @@
-import { Router, RouteRegistry } from '@collaborateam/application';
+import { Router } from '@workspace/application/router/Router';
+import { RouteRegistry } from '@workspace/application/router/RouteRegistry';
 import { BrowserHistoryAdapter } from './BrowserHistoryAdapter.js';
 import { DOMLinkInterceptor } from './DOMLinkInterceptor.js';
 import { EventRouteRenderer } from './EventRouteRenderer.js';
 
 export class RouterFactory {
   /**
-   * Crée un routeur configuré pour le navigateur (production)
+   * Creates a router configured for the browser (production)
    * @param {Window} windowObject 
    * @param {Document} documentObject 
    * @returns {Router}
@@ -26,7 +27,7 @@ export class RouterFactory {
   }
 
   /**
-   * Crée un routeur avec des dépendances injectées (pour les tests)
+   * Creates a router with injected dependencies (for tests)
    * @param {Object} deps 
    * @returns {Router}
    */

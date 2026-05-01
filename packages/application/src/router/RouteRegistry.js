@@ -1,7 +1,7 @@
-import { RouteMatcher } from '@collaborateam/domain/services/RouteMatcher';
+import { RouteMatcher } from '@workspace/domain/services/RouteMatcher';
 
 /**
- * Registre des routes
+ * Registry for routes
  */
 export class RouteRegistry {
   constructor() {
@@ -9,7 +9,7 @@ export class RouteRegistry {
   }
 
   /**
-   * Enregistre une route
+   * Registers a route
    * @param {Object} routeDefinition 
    */
   add(routeDefinition) {
@@ -25,7 +25,7 @@ export class RouteRegistry {
   }
 
   /**
-   * Trouve une route correspondante
+   * Finds a matching route
    * @param {string} pathname 
    * @returns {Object|null}
    */

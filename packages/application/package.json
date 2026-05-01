@@ -1,11 +1,19 @@
 {
-  "name": "@collaborateam/application",
+  "name": "@workspace/application",
   "version": "0.1.0",
   "type": "module",
   "exports": {
     "./*": "./src/*.js"
   },
   "dependencies": {
-    "@collaborateam/domain": "workspace:*"
+    "@workspace/domain": "workspace:*"
+  },
+  "scripts": {
+    "test": "vitest"
+  },
+  "devDependencies": {
+    "vitest": "catalog:vitest4",
+    "@workspace/vitest-config": "workspace:*",
+    "fast-check": "^3.16.0"
   }
 }

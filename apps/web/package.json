@@ -1,10 +1,10 @@
 {
-  "name": "@collaborateam/web",
+  "name": "@workspace/web",
   "version": "0.1.0",
   "type": "module",
   "dependencies": {
-    "@collaborateam/domain": "workspace:*",
-    "@collaborateam/application": "workspace:*",
-    "@collaborateam/infrastructure": "workspace:*"
+    "@workspace/domain": "workspace:*",
+    "@workspace/application": "workspace:*",
+    "@workspace/infrastructure": "workspace:*"
   }
 }

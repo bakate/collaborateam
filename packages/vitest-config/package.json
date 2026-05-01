@@ -21,8 +21,8 @@
     "prettier": "catalog:",
     "@vitest/coverage-v8": "catalog:vitest4",
     "@vitest/ui": "catalog:vitest4",
-    "@workspace/tsconfig": "workspace:*",
-    "glob": "^11.0.0",
-    "jsdom": "^27.4.0"
+    "@workspace/eslint-config": "workspace:*",
+    "glob": "^13.0.6",
+    "jsdom": "^29.1.1"
   }
 }

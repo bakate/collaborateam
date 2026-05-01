@@ -29,6 +29,9 @@
       "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/vitest.config.ts"],
       "dependsOn": ["transit", "@workspace/vitest-config#build"],
       "outputs": ["coverage/**"]
+    },
+    "transit": {
+      "dependsOn": ["^transit"]
     }
   },
   "globalPassThroughEnv": [

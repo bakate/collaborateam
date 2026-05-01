@@ -1,8 +1,8 @@
 export class RouteMatcher {
   /**
-   * Extrait les noms des paramètres d'une route
-   * @param {string} path Le chemin, ex: "/projects/:id"
-   * @returns {string[]} Un tableau contenant les noms des paramètres, ex: ["id"]
+   * Extracts parameter names from a route
+   * @param {string} path The path, e.g: "/projects/:id"
+   * @returns {string[]} An array containing parameter names, e.g: ["id"]
    */
   static extractParamNames(path) {
     if (!path) return [];
@@ -11,9 +11,9 @@ export class RouteMatcher {
   }
 
   /**
-   * Convertit un chemin avec paramètres en RegExp pour le matching
-   * @param {string} path Le chemin avec paramètres
-   * @returns {RegExp} L'expression régulière correspondante
+   * Converts a path with parameters to a RegExp for matching
+   * @param {string} path The path with parameters
+   * @returns {RegExp} The corresponding regular expression
    */
   static pathToRegex(path) {
     if (path === '*' || path === '(.*)') {

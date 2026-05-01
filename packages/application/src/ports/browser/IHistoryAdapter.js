@@ -1,10 +1,10 @@
 /**
- * Interface pour l'adapter d'historique de navigation
- * Définit le contrat pour interagir avec l'historique du navigateur ou en mémoire
+ * Interface for navigation history adapter
+ * Defines the contract to interact with browser or in-memory history
  */
 export class IHistoryAdapter {
   /**
-   * Ajoute une nouvelle entrée dans l'historique
+   * Adds a new entry to the history
    * @param {Object} state 
    * @param {string} title 
    * @param {string} url 
@@ -14,21 +14,21 @@ export class IHistoryAdapter {
   }
 
   /**
-   * Recule dans l'historique
+   * Goes back in the history
    */
   back() {
     throw new Error('Not implemented');
   }
 
   /**
-   * Avance dans l'historique
+   * Goes forward in the history
    */
   forward() {
     throw new Error('Not implemented');
   }
 
   /**
-   * Récupère le pathname courant
+   * Gets the current pathname
    * @returns {string}
    */
   getPathname() {
@@ -36,7 +36,7 @@ export class IHistoryAdapter {
   }
 
   /**
-   * Récupère la query string courante
+   * Gets the current query string
    * @returns {string}
    */
   getSearch() {
@@ -44,7 +44,7 @@ export class IHistoryAdapter {
   }
 
   /**
-   * Enregistre un callback pour l'événement popstate (back/forward)
+   * Registers a callback for the popstate event (back/forward)
    * @param {Function} callback 
    */
   onPopState(callback) {
