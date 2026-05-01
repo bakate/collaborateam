@@ -1,0 +1,19 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "tooling/*"
+
+catalog:
+  prettier: 3.8.3
+  "@faker-js/faker": 10.2.0
+  eslint: ^10.2.0
+
+catalogs:
+  vitest4:
+    "@vitest/coverage-istanbul": 4.0.17
+    "@vitest/coverage-v8": 4.0.17
+    "@vitest/ui": 4.0.17
+    vitest: 4.0.17
+
+onlyBuiltDependencies:
+  - esbuild

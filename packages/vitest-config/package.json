@@ -1,0 +1,28 @@
+{
+  "name": "@workspace/vitest-config",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Shared Vitest configuration",
+  "exports": {
+    ".": "./dist/index.js",
+    "./base": "./dist/configs/base-config.js",
+    "./ui": "./dist/configs/ui-config.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "collect-json-reports": "node dist/scripts/collect-json-outputs.js",
+    "view-report": "open coverage/report/index.html"
+  },
+  "dependencies": {
+    "vitest": "catalog:vitest4"
+  },
+  "devDependencies": {
+    "prettier": "catalog:",
+    "@vitest/coverage-v8": "catalog:vitest4",
+    "@vitest/ui": "catalog:vitest4",
+    "@workspace/tsconfig": "workspace:*",
+    "glob": "^11.0.0",
+    "jsdom": "^27.4.0"
+  }
+}

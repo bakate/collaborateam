@@ -1,0 +1,49 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+**/node_modules
+**/.pnp
+**/.pnp.js
+
+# Local env files
+**/.env*
+!**/.env.example
+
+# Testing
+**/coverage
+.nyc_output
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# Build outputs
+.turbo
+.cache
+**/out/
+**/build
+**/dist
+
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+*.pem
+
+# Editor
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+.kiro
+*.swp
+*.swo
+*~
