@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { faker } from '@faker-js/faker';
 import fc from 'fast-check';
 import { applyMiddlewares } from './middlewares/wrapper.js';
 import { AppError, ErrorCode, Errors } from './core/errors.js';
@@ -20,7 +21,7 @@ describe('Error Handling Property-Based Tests', () => {
           };
 
           const wrappedHandler = applyMiddlewares(mockHandler);
-          const req = new Request('http://localhost/test', { method: 'GET' });
+          const req = new Request(faker.internet.url(), { method: 'GET' });
           
           const res = await wrappedHandler(req);
           const json = await res.json();
@@ -42,7 +43,7 @@ describe('Error Handling Property-Based Tests', () => {
         };
 
         const wrappedHandler = applyMiddlewares(mockHandler);
-        const req = new Request('http://localhost/crash', { method: 'GET' });
+        const req = new Request(faker.internet.url(), { method: 'GET' });
         
         const res = await wrappedHandler(req);
         const json = await res.json();
@@ -56,13 +57,13 @@ describe('Error Handling Property-Based Tests', () => {
   });
 
   it('Property 41: Validation errors should include details in the response', async () => {
-    const details = { field: 'email', message: 'Invalid format' };
+    const details = { field: faker.database.column(), message: faker.lorem.sentence() };
     const mockHandler = async () => {
       throw Errors.validation(details);
     };
 
     const wrappedHandler = applyMiddlewares(mockHandler);
-    const req = new Request('http://localhost/validate', { method: 'POST' });
+    const req = new Request(faker.internet.url(), { method: 'POST' });
     
     const res = await wrappedHandler(req);
     const json = await res.json();
