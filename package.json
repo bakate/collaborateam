@@ -12,7 +12,8 @@
     "services:up": "docker compose up -d",
     "services:down": "docker compose down",
     "services:logs": "docker compose logs -f",
-    "services:restart": "pnpm run services:down && pnpm run services:up"
+    "services:restart": "pnpm run services:down && pnpm run services:up",
+    "test:e2e": "pnpm --filter @workspace/e2e-tests test"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.3.1",
