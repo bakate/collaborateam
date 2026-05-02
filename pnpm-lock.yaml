@@ -84,6 +84,19 @@ importers:
       '@workspace/infrastructure':
         specifier: workspace:*
         version: link:../../packages/infrastructure
+    devDependencies:
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@workspace/vitest-config':
+        specifier: workspace:*
+        version: link:../../packages/vitest-config
+      eslint:
+        specifier: 'catalog:'
+        version: 10.2.1(jiti@2.6.1)
+      vitest:
+        specifier: catalog:vitest4
+        version: 4.0.17(@types/node@22.15.3)(@vitest/ui@4.0.17)(jiti@2.6.1)(jsdom@29.1.1)(yaml@2.8.3)
 
   packages/application:
     dependencies:
@@ -91,6 +104,9 @@ importers:
         specifier: workspace:*
         version: link:../domain
     devDependencies:
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       '@workspace/vitest-config':
         specifier: workspace:*
         version: link:../vitest-config
@@ -103,6 +119,9 @@ importers:
 
   packages/domain:
     devDependencies:
+      '@workspace/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       '@workspace/vitest-config':
         specifier: workspace:*
         version: link:../vitest-config

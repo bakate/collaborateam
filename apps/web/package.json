@@ -6,5 +6,15 @@
     "@workspace/domain": "workspace:*",
     "@workspace/application": "workspace:*",
     "@workspace/infrastructure": "workspace:*"
+  },
+  "scripts": {
+    "test": "vitest",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "vitest": "catalog:vitest4",
+    "eslint": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*"
   }
 }

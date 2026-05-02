@@ -21,6 +21,7 @@ export const config = [
       sourceType: "module",
       globals: {
         ...globals.node,
+        ...globals.browser,
       },
     },
     rules: {
