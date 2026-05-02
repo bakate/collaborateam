@@ -10,8 +10,8 @@ describe('ProjectParser Properties', () => {
       name: fc.string({ minLength: 1 }),
       description: fc.string(),
       ownerId: fc.uuid(),
-      createdAt: fc.date({ min: new Date('2000-01-01'), max: new Date('2050-01-01') }).map(d => d.toISOString()),
-      updatedAt: fc.date({ min: new Date('2000-01-01'), max: new Date('2050-01-01') }).map(d => d.toISOString()),
+      createdAt: fc.integer({ min: Date.UTC(2000, 0, 1), max: Date.UTC(2050, 0, 1) }).map(t => new Date(t).toISOString()),
+      updatedAt: fc.integer({ min: Date.UTC(2000, 0, 1), max: Date.UTC(2050, 0, 1) }).map(t => new Date(t).toISOString()),
     });
 
     fc.assert(
