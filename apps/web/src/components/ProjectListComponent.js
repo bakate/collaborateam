@@ -26,6 +26,41 @@ export class ProjectListComponent extends Component {
 
   onMount() {
     this._fetchProjects();
+    this._setupEventListeners();
+  }
+
+  _setupEventListeners() {
+    if (!this.container) return;
+
+    this.container.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (!btn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const { action, projectId } = btn.dataset;
+
+      switch (action) {
+        case 'view':
+        case 'select':
+          if (this.props.router) this.props.router.navigate(`/projects/${projectId}`);
+          this.emit('project:select', { projectId });
+          break;
+        case 'edit':
+          if (this.props.router) this.props.router.navigate(`/projects/${projectId}/edit`);
+          break;
+        case 'delete-init':
+          this.setState({ confirmingDeleteId: projectId });
+          break;
+        case 'confirm-delete':
+          this._handleDelete(projectId);
+          break;
+        case 'cancel-delete':
+          this.setState({ confirmingDeleteId: null });
+          break;
+      }
+    });
   }
 
   render() {
@@ -140,10 +175,8 @@ export class ProjectListComponent extends Component {
       variant: 'ghost',
       size: 'sm',
     });
-    viewBtn.addEventListener('click', () => {
-      if (this.props.router) this.props.router.navigate(`/projects/${project.id}`);
-      this.emit('project:select', { projectId: project.id });
-    });
+    viewBtn.dataset.action = 'view';
+    viewBtn.dataset.projectId = project.id;
     actions.appendChild(viewBtn);
 
     // Edit/Delete only for owner
@@ -161,7 +194,8 @@ export class ProjectListComponent extends Component {
           variant: 'danger',
           size: 'sm',
         });
-        confirmBtn.addEventListener('click', () => this._handleDelete(project.id));
+        confirmBtn.dataset.action = 'confirm-delete';
+        confirmBtn.dataset.projectId = project.id;
 
         const cancelBtn = createButton({
           id: `cancel-delete-${project.id}`,
@@ -169,7 +203,8 @@ export class ProjectListComponent extends Component {
           variant: 'ghost',
           size: 'sm',
         });
-        cancelBtn.addEventListener('click', () => this.setState({ confirmingDeleteId: null }));
+        cancelBtn.dataset.action = 'cancel-delete';
+        cancelBtn.dataset.projectId = project.id;
 
         actions.appendChild(confirmBtn);
         actions.appendChild(cancelBtn);
@@ -180,9 +215,8 @@ export class ProjectListComponent extends Component {
           variant: 'ghost',
           size: 'sm',
         });
-        editBtn.addEventListener('click', () => {
-          if (this.props.router) this.props.router.navigate(`/projects/${project.id}/edit`);
-        });
+        editBtn.dataset.action = 'edit';
+        editBtn.dataset.projectId = project.id;
 
         const deleteBtn = createButton({
           id: `delete-project-${project.id}`,
@@ -190,7 +224,8 @@ export class ProjectListComponent extends Component {
           variant: 'danger',
           size: 'sm',
         });
-        deleteBtn.addEventListener('click', () => this.setState({ confirmingDeleteId: project.id }));
+        deleteBtn.dataset.action = 'delete-init';
+        deleteBtn.dataset.projectId = project.id;
 
         actions.appendChild(editBtn);
         actions.appendChild(deleteBtn);

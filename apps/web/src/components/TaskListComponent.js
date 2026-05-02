@@ -58,6 +58,7 @@ export class TaskListComponent extends Component {
   onMount() {
     this._fetchProject();
     this._fetchTasks();
+    this._setupEventListeners();
 
     // WS: Join project room
     wsManager.joinProject(this.props.projectId);
@@ -66,6 +67,40 @@ export class TaskListComponent extends Component {
     this._wsUnsubscribe = wsManager.subscribe((payload) => {
       if (payload.projectId === this.props.projectId) {
         this.applyWsUpdate(payload);
+      }
+    });
+  }
+
+  _setupEventListeners() {
+    if (!this.container) return;
+
+    this.container.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const { action, taskId } = btn.dataset;
+
+      switch (action) {
+        case "delete-init":
+          this.setState({ confirmingDeleteId: taskId });
+          break;
+        case "confirm-delete":
+          this._handleDelete(taskId);
+          break;
+        case "cancel-delete":
+          this.setState({ confirmingDeleteId: null });
+          break;
+        case "edit":
+          if (this.props.router) {
+            this.props.router.navigate(
+              `/projects/${this.props.projectId}/tasks/${taskId}/edit`,
+            );
+          }
+          this.emit("task:edit", { taskId });
+          break;
       }
     });
   }
@@ -221,10 +256,10 @@ export class TaskListComponent extends Component {
     filterComp.on("filter:change", (filters) => {
       this.setState({ ...filters });
     });
-    
+
     // mount() already handles appending to the container
     filterComp.mount(container);
-    
+
     container.appendChild(content);
     wrapper.appendChild(container);
     return wrapper;
@@ -422,6 +457,7 @@ export class TaskListComponent extends Component {
     if (this.canEdit) {
       const actions = document.createElement("div");
       actions.className = "task-card__actions";
+      actions.draggable = false; // Prevent drag interference
 
       if (this.state.confirmingDeleteId === task.id) {
         // Confirmation mode
@@ -436,10 +472,8 @@ export class TaskListComponent extends Component {
           variant: "danger",
           size: "sm",
         });
-        confirmBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          this._handleDelete(task.id);
-        });
+        confirmBtn.dataset.action = "confirm-delete";
+        confirmBtn.dataset.taskId = task.id;
 
         const cancelBtn = createButton({
           id: `cancel-delete-${task.id}`,
@@ -447,10 +481,8 @@ export class TaskListComponent extends Component {
           variant: "ghost",
           size: "sm",
         });
-        cancelBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          this.setState({ confirmingDeleteId: null });
-        });
+        cancelBtn.dataset.action = "cancel-delete";
+        cancelBtn.dataset.taskId = task.id;
 
         actions.appendChild(confirmBtn);
         actions.appendChild(cancelBtn);
@@ -462,15 +494,8 @@ export class TaskListComponent extends Component {
           variant: "ghost",
           size: "sm",
         });
-        editBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          if (this.props.router) {
-            this.props.router.navigate(
-              `/projects/${this.props.projectId}/tasks/${task.id}/edit`,
-            );
-          }
-          this.emit("task:edit", { taskId: task.id });
-        });
+        editBtn.dataset.action = "edit";
+        editBtn.dataset.taskId = task.id;
 
         const deleteBtn = createButton({
           id: `delete-task-${task.id}`,
@@ -478,10 +503,8 @@ export class TaskListComponent extends Component {
           variant: "danger",
           size: "sm",
         });
-        deleteBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          this.setState({ confirmingDeleteId: task.id });
-        });
+        deleteBtn.dataset.action = "delete-init";
+        deleteBtn.dataset.taskId = task.id;
 
         actions.appendChild(editBtn);
         actions.appendChild(deleteBtn);
@@ -494,9 +517,6 @@ export class TaskListComponent extends Component {
   }
 
   async _handleDelete(taskId) {
-    const token = authStore.token;
-    if (!token) return;
-
     try {
       const response = await apiClient.delete(`/tasks/${taskId}`, {
         projectId: this.props.projectId,
@@ -505,14 +525,17 @@ export class TaskListComponent extends Component {
       if (response.ok) {
         this.setState({
           tasks: this.state.tasks.filter((task) => task.id !== taskId),
+          confirmingDeleteId: null,
         });
         this.emit("task:deleted", { taskId });
         toast.success("Task deleted");
       } else {
-        throw new Error("Failed to delete task");
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to delete task");
       }
     } catch (err) {
       toast.error(err.message);
+      this.setState({ confirmingDeleteId: null });
     }
   }
 
