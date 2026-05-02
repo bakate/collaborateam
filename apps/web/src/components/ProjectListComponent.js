@@ -2,8 +2,9 @@ import { Component } from '../core/Component.js';
 import { authStore } from '../core/AuthStore.js';
 import { createPageLayout } from '../core/PageLayout.js';
 import { createButton, createSpinner } from '@workspace/ui/components/Button';
+import { apiClient } from '../core/APIClient.js';
+import { toast } from '../core/ToastManager.js';
 
-const API_BASE = '/api';
 
 /**
  * ProjectListComponent — "Smart" component.
@@ -147,30 +148,25 @@ export class ProjectListComponent extends Component {
   }
 
   async _fetchProjects() {
-    const token = authStore.token;
-    if (!token) {
-      this.setState({ error: 'Not authenticated', loading: false });
-      return;
-    }
-
     this.setState({ loading: true, error: null });
 
     try {
       const query = this.state.mineOnly ? '?mine=true' : '';
-      const response = await fetch(`${API_BASE}/projects${query}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get(`/projects${query}`);
 
       if (!response.ok) {
         const data = await response.json();
-        this.setState({ loading: false, error: data.error || 'Failed to load projects' });
+        const errorMsg = data.error || 'Failed to load projects';
+        this.setState({ loading: false, error: errorMsg });
+        toast.error(errorMsg);
         return;
       }
 
       const data = await response.json();
       this.setState({ loading: false, projects: data.projects });
-    } catch {
-      this.setState({ loading: false, error: 'Network error. Please try again.' });
+    } catch (err) {
+      this.setState({ loading: false, error: err.message });
+      toast.error(err.message);
     }
   }
 }

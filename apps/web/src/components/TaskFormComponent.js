@@ -4,8 +4,9 @@ import { createPageLayout } from '../core/PageLayout.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
+import { apiClient } from '../core/APIClient.js';
+import { toast } from '../core/ToastManager.js';
 
-const API_BASE = '/api';
 
 const TASK_STATUSES = [
   { value: 'todo', label: 'To Do' },
@@ -169,35 +170,17 @@ export class TaskFormComponent extends Component {
       return;
     }
 
-    const token = authStore.token;
-    if (!token) {
-      this.setState({ error: 'Not authenticated' });
-      return;
-    }
-
     this.setState({ submitting: true, error: null });
 
     try {
       const isEdit = this.isEditMode;
-      const url = isEdit
-        ? `${API_BASE}/tasks/${this.props.taskId}`
-        : `${API_BASE}/projects/${this.props.projectId}/tasks`;
-
-      const method = isEdit ? 'PUT' : 'POST';
-
-      // PUT requires projectId in body for ownership check
-      const body = isEdit
+      const payload = isEdit
         ? { title: taskTitle, description, status, projectId: this.props.projectId }
         : { title: taskTitle, description, status };
 
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
+      const response = isEdit
+        ? await apiClient.put(`/tasks/${this.props.taskId}`, payload)
+        : await apiClient.post(`/projects/${this.props.projectId}/tasks`, payload);
 
       const data = await response.json();
 
@@ -208,34 +191,31 @@ export class TaskFormComponent extends Component {
           ? 'Task not found.'
           : data.error || 'Failed to save task.';
         this.setState({ submitting: false, error: message });
+        toast.error(message);
         return;
       }
 
       this.setState({ submitting: false, error: null });
+      toast.success(isEdit ? 'Task updated' : 'Task created');
       this.emit('task:saved', { task: data.task });
       if (this.props.router) {
         this.props.router.navigate(`/projects/${this.props.projectId}`);
       }
-    } catch {
-      this.setState({ submitting: false, error: 'Network error. Please try again.' });
+    } catch (err) {
+      this.setState({ submitting: false, error: err.message });
+      toast.error(err.message);
     }
   }
 
   async _fetchTask() {
-    const token = authStore.token;
-    if (!token) return;
-
     this.setState({ loading: true });
 
     try {
-      // Fetch task via project tasks endpoint (read is open)
-      const response = await fetch(
-        `${API_BASE}/projects/${this.props.projectId}/tasks`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await apiClient.get(`/projects/${this.props.projectId}/tasks`);
 
       if (!response.ok) {
         this.setState({ loading: false, error: 'Could not load task.' });
+        toast.error('Failed to load tasks');
         return;
       }
 
@@ -243,12 +223,14 @@ export class TaskFormComponent extends Component {
       const task = data.tasks?.find(t => t.id === this.props.taskId);
       if (!task) {
         this.setState({ loading: false, error: 'Task not found.' });
+        toast.error('Task not found');
         return;
       }
 
       this.setState({ loading: false, task });
-    } catch {
-      this.setState({ loading: false, error: 'Network error.' });
+    } catch (err) {
+      this.setState({ loading: false, error: err.message });
+      toast.error('Failed to load tasks');
     }
   }
 }

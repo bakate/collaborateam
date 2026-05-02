@@ -4,8 +4,9 @@ import { createPageLayout } from '../core/PageLayout.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
+import { apiClient } from '../core/APIClient.js';
+import { toast } from '../core/ToastManager.js';
 
-const API_BASE = '/api';
 
 /**
  * ProjectFormComponent — "Smart" component.
@@ -126,29 +127,13 @@ export class ProjectFormComponent extends Component {
       return;
     }
 
-    const token = authStore.token;
-    if (!token) {
-      this.setState({ error: 'Not authenticated' });
-      return;
-    }
-
     this.setState({ submitting: true, error: null });
 
     try {
-      const url = this.isEditMode
-        ? `${API_BASE}/projects/${this.props.projectId}`
-        : `${API_BASE}/projects`;
-
-      const method = this.isEditMode ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name, description }),
-      });
+      const payload = { name, description };
+      const response = this.isEditMode
+        ? await apiClient.put(`/projects/${this.props.projectId}`, payload)
+        : await apiClient.post('/projects', payload);
 
       const data = await response.json();
 
@@ -157,37 +142,37 @@ export class ProjectFormComponent extends Component {
           ? 'You are not allowed to edit this project.'
           : data.error || 'Failed to save project.';
         this.setState({ submitting: false, error: message });
+        toast.error(message);
         return;
       }
 
       this.setState({ submitting: false, error: null });
+      toast.success(this.isEditMode ? 'Project updated' : 'Project created');
       this.emit('project:saved', { project: data.project });
       if (this.props.router) this.props.router.navigate('/');
-    } catch {
-      this.setState({ submitting: false, error: 'Network error. Please try again.' });
+    } catch (err) {
+      this.setState({ submitting: false, error: err.message });
+      toast.error(err.message);
     }
   }
 
   async _fetchProject() {
-    const token = authStore.token;
-    if (!token) return;
-
     this.setState({ loading: true });
 
     try {
-      const response = await fetch(`${API_BASE}/projects/${this.props.projectId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await apiClient.get(`/projects/${this.props.projectId}`);
 
       if (!response.ok) {
         this.setState({ loading: false, error: 'Could not load project.' });
+        toast.error('Failed to load project details');
         return;
       }
 
       const data = await response.json();
       this.setState({ loading: false, project: data.project });
-    } catch {
-      this.setState({ loading: false, error: 'Network error.' });
+    } catch (err) {
+      this.setState({ loading: false, error: err.message });
+      toast.error('Failed to load project details');
     }
   }
 }
