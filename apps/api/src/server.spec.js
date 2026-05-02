@@ -1,16 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { applyMiddlewares } from './middlewares/wrapper.js';
-import { runMigrations } from './db/migrate.js';
-import { sql } from './db.js';
-import { logger } from './config/logger.js';
+import { runMigrations } from '@workspace/infrastructure/db/migrate';
+import { sql } from '@workspace/infrastructure/db/db';
+import { logger } from '@workspace/infrastructure/logger/logger';
 
 // Mock dependencies
-vi.mock('./db.js', () => ({
+vi.mock('@workspace/infrastructure/db/db', () => ({
   sql: vi.fn(),
   checkConnection: vi.fn().mockResolvedValue(true)
 }));
 
-vi.mock('./config/logger.js', () => ({
+vi.mock('@workspace/infrastructure/logger/logger', () => ({
   logger: {
     info: vi.fn(),
     error: vi.fn(),

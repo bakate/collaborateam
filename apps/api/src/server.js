@@ -1,6 +1,6 @@
-import { logger } from './config/logger.js';
-import { checkConnection } from './db/db.js';
-import { runMigrations } from './db/migrate.js';
+import { logger } from '@workspace/infrastructure/logger/logger';
+import { checkConnection } from '@workspace/infrastructure/db/db';
+import { runMigrations } from '@workspace/infrastructure/db/migrate';
 import { applyMiddlewares } from './middlewares/wrapper.js';
 
 const PORT = process.env.PORT || 3000;

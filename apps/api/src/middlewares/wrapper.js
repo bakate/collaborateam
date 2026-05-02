@@ -1,4 +1,4 @@
-import { logger } from '../config/logger.js';
+import { logger } from '@workspace/infrastructure/logger/logger';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*', // Configurable in prod via env vars

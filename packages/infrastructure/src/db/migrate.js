@@ -1,5 +1,5 @@
 import { sql } from './db.js';
-import { logger } from '../config/logger.js';
+import { logger } from '../logger/logger.js';
 
 export const runMigrations = async () => {
   logger.info('Starting database migrations...');

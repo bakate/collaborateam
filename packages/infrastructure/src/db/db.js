@@ -1,5 +1,5 @@
 import postgres from 'postgres';
-import { logger } from '../config/logger.js';
+import { logger } from '../logger/logger.js';
 
 const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/collaborateam';
 

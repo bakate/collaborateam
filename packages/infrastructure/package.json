@@ -7,7 +7,9 @@
   },
   "dependencies": {
     "@workspace/application": "workspace:*",
-    "@workspace/domain": "workspace:*"
+    "@workspace/domain": "workspace:*",
+    "pino": "^8.20.0",
+    "postgres": "^3.4.4"
   },
   "scripts": {
     "test": "vitest",
@@ -19,6 +21,7 @@
     "@workspace/vitest-config": "workspace:*",
     "fast-check": "catalog:",
     "jsdom": "^29.1.1",
+    "pino-pretty": "^11.0.0",
     "vitest": "catalog:vitest4"
   }
 }

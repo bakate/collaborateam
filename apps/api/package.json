@@ -8,9 +8,7 @@
   "dependencies": {
     "@workspace/domain": "workspace:*",
     "@workspace/application": "workspace:*",
-    "@workspace/infrastructure": "workspace:*",
-    "pino": "^8.20.0",
-    "postgres": "^3.4.4"
+    "@workspace/infrastructure": "workspace:*"
   },
   "scripts": {
     "start": "bun run src/server.js",
@@ -21,7 +19,6 @@
   "devDependencies": {
     "vitest": "catalog:vitest4",
     "@workspace/vitest-config": "workspace:*",
-    "@workspace/eslint-config": "workspace:*",
-    "pino-pretty": "^11.0.0"
+    "@workspace/eslint-config": "workspace:*"
   }
 }
