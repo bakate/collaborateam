@@ -5,13 +5,7 @@ import { wsManager } from "../core/WebSocketManager.js";
 import { apiClient } from "../core/APIClient.js";
 import { toast } from "../core/ToastManager.js";
 import { TaskFilterComponent } from "./TaskFilterComponent.js";
-import { createButton, createSpinner } from "@workspace/ui/components/Button";
-
-const STATUS_LABELS = {
-  todo: "To Do",
-  in_progress: "In Progress",
-  done: "Done",
-};
+import { createButton, createSpinner, Icons } from "@workspace/ui";
 
 /**
  * TaskListComponent — "Smart" component.
@@ -184,8 +178,9 @@ export class TaskListComponent extends Component {
     if (this.canEdit) {
       const addBtn = createButton({
         id: "add-task-btn",
-        label: "+ Add Task",
+        label: "Add Task",
         variant: "primary",
+        icon: Icons.plus
       });
       addBtn.addEventListener("click", () => {
         if (this.props.router) {
@@ -199,7 +194,7 @@ export class TaskListComponent extends Component {
     }
 
     const { wrapper, container } = createPageLayout({
-      title: "Tasks",
+      title: this.state.project?.name || "Tasks",
       actions,
       showBack: true,
       onBack: () => this.props.router?.navigate("/"),
@@ -299,6 +294,8 @@ export class TaskListComponent extends Component {
       column.className = "kanban-column";
       column.dataset.status = col.id;
 
+      const columnIcon = col.id === 'todo' ? Icons.circle : col.id === 'in_progress' ? Icons.play : Icons.check;
+
       // Drop on column to change status
       column.addEventListener("dragover", (e) => {
         e.preventDefault();
@@ -324,7 +321,7 @@ export class TaskListComponent extends Component {
 
       const colTitle = document.createElement("h3");
       colTitle.className = "kanban-column__title";
-      colTitle.textContent = col.label;
+      colTitle.innerHTML = `<span class="kanban-column__icon">${columnIcon}</span> <span>${col.label}</span>`;
       colHeader.appendChild(colTitle);
 
       const colTasks = tasks.filter((t) => t.status === col.id);
@@ -433,8 +430,9 @@ export class TaskListComponent extends Component {
     header.className = "task-card__header";
 
     const statusBadge = document.createElement("span");
+    const badgeIcon = task.status === 'todo' ? Icons.circle : task.status === 'in_progress' ? Icons.play : Icons.check;
     statusBadge.className = `badge badge--${task.status.toLowerCase()}`;
-    statusBadge.textContent = task.status.replace("_", " ");
+    statusBadge.innerHTML = `${badgeIcon} <span>${task.status.replace("_", " ")}</span>`;
     header.appendChild(statusBadge);
 
     const titleEl = document.createElement("h3");
@@ -471,6 +469,7 @@ export class TaskListComponent extends Component {
           label: "Confirm",
           variant: "danger",
           size: "sm",
+          icon: Icons.check
         });
         confirmBtn.dataset.action = "confirm-delete";
         confirmBtn.dataset.taskId = task.id;
@@ -480,6 +479,7 @@ export class TaskListComponent extends Component {
           label: "Cancel",
           variant: "ghost",
           size: "sm",
+          icon: Icons.arrowLeft
         });
         cancelBtn.dataset.action = "cancel-delete";
         cancelBtn.dataset.taskId = task.id;
@@ -493,6 +493,7 @@ export class TaskListComponent extends Component {
           label: "Edit",
           variant: "ghost",
           size: "sm",
+          icon: Icons.edit
         });
         editBtn.dataset.action = "edit";
         editBtn.dataset.taskId = task.id;
@@ -500,8 +501,9 @@ export class TaskListComponent extends Component {
         const deleteBtn = createButton({
           id: `delete-task-${task.id}`,
           label: "Delete",
-          variant: "danger",
+          variant: "ghost",
           size: "sm",
+          icon: Icons.trash
         });
         deleteBtn.dataset.action = "delete-init";
         deleteBtn.dataset.taskId = task.id;

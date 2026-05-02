@@ -1,7 +1,7 @@
 import { Component } from '../core/Component.js';
 import { authStore } from '../core/AuthStore.js';
 import { createPageLayout } from '../core/PageLayout.js';
-import { createButton, createSpinner } from '@workspace/ui/components/Button';
+import { createButton, createSpinner, Icons } from '@workspace/ui';
 import { apiClient } from '../core/APIClient.js';
 import { toast } from '../core/ToastManager.js';
 
@@ -160,11 +160,26 @@ export class ProjectListComponent extends Component {
 
     const nameEl = document.createElement('h2');
     nameEl.className = 'project-card__name';
-    nameEl.textContent = project.name;
+    nameEl.innerHTML = `${Icons.folder} <span>${project.name}</span>`;
 
     const descEl = document.createElement('p');
     descEl.className = 'project-card__description';
-    descEl.textContent = project.description || '';
+    descEl.textContent = project.description || 'No description provided.';
+
+    // Meta section (Stats & Owner)
+    const meta = document.createElement('div');
+    meta.className = 'project-card__meta';
+
+    const tasksStat = document.createElement('div');
+    tasksStat.className = 'project-card__stat';
+    tasksStat.innerHTML = `${Icons.tasks} <span>${project.taskCount || 0} tasks</span>`;
+
+    const ownerInfo = document.createElement('div');
+    ownerInfo.className = 'project-card__owner';
+    ownerInfo.innerHTML = `${Icons.user} <span>${project.ownerName || 'Owner'}</span>`;
+
+    meta.appendChild(tasksStat);
+    meta.appendChild(ownerInfo);
 
     const actions = document.createElement('div');
     actions.className = 'project-card__actions';
@@ -172,8 +187,9 @@ export class ProjectListComponent extends Component {
     const viewBtn = createButton({
       id: `view-project-${project.id}`,
       label: 'View',
-      variant: 'ghost',
+      variant: 'primary',
       size: 'sm',
+      icon: Icons.eye
     });
     viewBtn.dataset.action = 'view';
     viewBtn.dataset.projectId = project.id;
@@ -214,6 +230,7 @@ export class ProjectListComponent extends Component {
           label: 'Edit',
           variant: 'ghost',
           size: 'sm',
+          icon: Icons.edit
         });
         editBtn.dataset.action = 'edit';
         editBtn.dataset.projectId = project.id;
@@ -221,8 +238,9 @@ export class ProjectListComponent extends Component {
         const deleteBtn = createButton({
           id: `delete-project-${project.id}`,
           label: 'Delete',
-          variant: 'danger',
+          variant: 'ghost',
           size: 'sm',
+          icon: Icons.trash
         });
         deleteBtn.dataset.action = 'delete-init';
         deleteBtn.dataset.projectId = project.id;
@@ -234,6 +252,7 @@ export class ProjectListComponent extends Component {
 
     item.appendChild(nameEl);
     item.appendChild(descEl);
+    item.appendChild(meta);
     item.appendChild(actions);
 
     return item;
