@@ -3,20 +3,24 @@
   "version": "0.1.0",
   "type": "module",
   "dependencies": {
-    "@workspace/domain": "workspace:*",
     "@workspace/application": "workspace:*",
+    "@workspace/domain": "workspace:*",
     "@workspace/infrastructure": "workspace:*",
-    "@workspace/ui": "workspace:*"
+    "@workspace/ui": "workspace:*",
+    "vite": "^8.0.10"
   },
   "scripts": {
     "test": "vitest",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "vitest": "catalog:vitest4",
-    "eslint": "catalog:",
     "@faker-js/faker": "catalog:",
     "@workspace/eslint-config": "workspace:*",
-    "@workspace/vitest-config": "workspace:*"
+    "@workspace/vitest-config": "workspace:*",
+    "eslint": "catalog:",
+    "vitest": "catalog:vitest4"
   }
 }

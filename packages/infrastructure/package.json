@@ -16,7 +16,8 @@
   },
   "scripts": {
     "test": "vitest",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "db:seed": "bun src/db/seed.js"
   },
   "devDependencies": {
     "@faker-js/faker": "catalog:",

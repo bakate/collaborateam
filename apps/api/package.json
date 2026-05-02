@@ -8,7 +8,8 @@
   "dependencies": {
     "@workspace/domain": "workspace:*",
     "@workspace/application": "workspace:*",
-    "@workspace/infrastructure": "workspace:*"
+    "@workspace/infrastructure": "workspace:*",
+    "zod": "catalog:"
   },
   "scripts": {
     "start": "bun run src/server.js",
