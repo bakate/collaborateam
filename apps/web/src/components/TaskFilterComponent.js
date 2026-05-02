@@ -35,8 +35,8 @@ export class TaskFilterComponent extends Component {
       id: 'task-search',
       name: 'search',
       type: 'search',
-      label: 'Search tasks',
-      placeholder: 'Filter by title...',
+      label: 'Search Tasks',
+      placeholder: 'Type to filter...',
       value: this.state.search,
     });
 
@@ -51,7 +51,7 @@ export class TaskFilterComponent extends Component {
 
     const statusLabel = document.createElement('span');
     statusLabel.className = 'status-filter__label';
-    statusLabel.textContent = 'Status:';
+    statusLabel.textContent = 'Filter by Status';
     statusWrapper.appendChild(statusLabel);
 
     const statuses = [
@@ -70,7 +70,10 @@ export class TaskFilterComponent extends Component {
       btn.className = `btn btn--small ${this.state.status === status.id ? 'btn--primary' : 'btn--ghost'}`;
       btn.textContent = status.label;
       btn.dataset.statusId = status.id;
-      btn.addEventListener('click', () => this._handleStatusChange(status.id));
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        this._handleStatusChange(status.id);
+      });
       group.appendChild(btn);
     }
 
