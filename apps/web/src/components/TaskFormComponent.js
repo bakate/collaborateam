@@ -1,4 +1,5 @@
 import { Component } from '../core/Component.js';
+import { authStore } from '../core/AuthStore.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
@@ -159,7 +160,7 @@ export class TaskFormComponent extends Component {
       return;
     }
 
-    const token = sessionStorage.getItem('accessToken');
+    const token = authStore.token;
     if (!token) {
       this.setState({ error: 'Not authenticated' });
       return;
@@ -203,13 +204,16 @@ export class TaskFormComponent extends Component {
 
       this.setState({ submitting: false, error: null });
       this.emit('task:saved', { task: data.task });
+      if (this.props.router) {
+        this.props.router.navigate(`/projects/${this.props.projectId}`);
+      }
     } catch {
       this.setState({ submitting: false, error: 'Network error. Please try again.' });
     }
   }
 
   async _fetchTask() {
-    const token = sessionStorage.getItem('accessToken');
+    const token = authStore.token;
     if (!token) return;
 
     this.setState({ loading: true });

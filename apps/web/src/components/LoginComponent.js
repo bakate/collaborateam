@@ -1,4 +1,5 @@
 import { Component } from '../core/Component.js';
+import { authStore } from '../core/AuthStore.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
@@ -69,7 +70,7 @@ export class LoginComponent extends Component {
 
     const registerLink = document.createElement('p');
     registerLink.className = 'auth-card__footer';
-    registerLink.innerHTML = `Don't have an account? <a href="#register" id="go-to-register">Sign up</a>`;
+    registerLink.innerHTML = `Don't have an account? <a href="#/register" id="go-to-register">Sign up</a>`;
     wrapper.appendChild(registerLink);
 
     return wrapper;
@@ -115,12 +116,16 @@ export class LoginComponent extends Component {
         return;
       }
 
-      // Store tokens in sessionStorage (not localStorage — security conscious)
-      sessionStorage.setItem('accessToken', data.accessToken);
-      sessionStorage.setItem('refreshToken', data.refreshToken);
+      // Update global AuthStore
+      authStore.login(data.user, data.accessToken, data.refreshToken);
 
       this.setState({ loading: false, error: null });
       this.emit('login:success', { user: data.user, accessToken: data.accessToken });
+      
+      // Redirect to projects
+      if (this.props.router) {
+        this.props.router.navigate('/');
+      }
     } catch {
       this.setState({ loading: false, error: 'Network error. Please try again.' });
     }

@@ -1,4 +1,5 @@
 import { Component } from '../core/Component.js';
+import { authStore } from '../core/AuthStore.js';
 import { createButton, createSpinner } from '@workspace/ui/components/Button';
 
 const API_BASE = '/api';
@@ -25,19 +26,40 @@ export class ProjectListComponent extends Component {
   }
 
   render() {
-    const wrapper = document.createElement('section');
-    wrapper.className = 'project-list';
-    wrapper.id = 'project-list-section';
-    wrapper.setAttribute('aria-label', 'Projects');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'project-list-page';
 
     // Header
-    const header = document.createElement('div');
-    header.className = 'project-list__header';
+    const headerEl = document.createElement('header');
+    headerEl.className = 'app-header';
+    headerEl.innerHTML = `
+      <div class="container">
+        <a href="#/" class="app-header__logo">Collaborateam</a>
+        <div class="app-header__user">
+          <span class="user-email">${authStore.user?.email || ''}</span>
+          <button id="logout-btn" class="btn btn--ghost btn--sm">Logout</button>
+        </div>
+      </div>
+    `;
+    
+    headerEl.querySelector('#logout-btn').addEventListener('click', () => {
+      authStore.logout();
+      if (this.props.router) this.props.router.navigate('/login');
+    });
+
+    wrapper.appendChild(headerEl);
+
+    const container = document.createElement('main');
+    container.className = 'container project-list';
+
+    // Section Header
+    const sectionHeader = document.createElement('div');
+    sectionHeader.className = 'project-list__header';
 
     const title = document.createElement('h1');
     title.className = 'project-list__title';
     title.textContent = 'Projects';
-    header.appendChild(title);
+    sectionHeader.appendChild(title);
 
     const actions = document.createElement('div');
     actions.className = 'project-list__actions';
@@ -65,15 +87,19 @@ export class ProjectListComponent extends Component {
       label: '+ New Project',
       variant: 'primary',
     });
-    createBtn.addEventListener('click', () => this.emit('project:create'));
+    createBtn.addEventListener('click', () => {
+      if (this.props.router) this.props.router.navigate('/projects/new');
+      this.emit('project:create');
+    });
     actions.appendChild(createBtn);
 
-    header.appendChild(actions);
-    wrapper.appendChild(header);
+    sectionHeader.appendChild(actions);
+    container.appendChild(sectionHeader);
 
     // Loading
     if (this.state.loading) {
-      wrapper.appendChild(createSpinner({ label: 'Loading projects' }));
+      container.appendChild(createSpinner({ label: 'Loading projects' }));
+      wrapper.appendChild(container);
       return wrapper;
     }
 
@@ -87,8 +113,9 @@ export class ProjectListComponent extends Component {
       const retryBtn = createButton({ id: 'retry-btn', label: 'Retry', variant: 'secondary' });
       retryBtn.addEventListener('click', () => this._fetchProjects());
 
-      wrapper.appendChild(errorEl);
-      wrapper.appendChild(retryBtn);
+      container.appendChild(errorEl);
+      container.appendChild(retryBtn);
+      wrapper.appendChild(container);
       return wrapper;
     }
 
@@ -99,7 +126,8 @@ export class ProjectListComponent extends Component {
       empty.textContent = this.state.mineOnly
         ? "You haven't created any projects yet."
         : 'No projects found.';
-      wrapper.appendChild(empty);
+      container.appendChild(empty);
+      wrapper.appendChild(container);
       return wrapper;
     }
 
@@ -113,7 +141,8 @@ export class ProjectListComponent extends Component {
       list.appendChild(item);
     }
 
-    wrapper.appendChild(list);
+    container.appendChild(list);
+    wrapper.appendChild(container);
     return wrapper;
   }
 
@@ -135,9 +164,10 @@ export class ProjectListComponent extends Component {
       label: 'View project',
       variant: 'ghost',
     });
-    viewBtn.addEventListener('click', () =>
-      this.emit('project:select', { projectId: project.id })
-    );
+    viewBtn.addEventListener('click', () => {
+      if (this.props.router) this.props.router.navigate(`/projects/${project.id}`);
+      this.emit('project:select', { projectId: project.id });
+    });
 
     item.appendChild(nameEl);
     item.appendChild(descEl);
@@ -147,7 +177,7 @@ export class ProjectListComponent extends Component {
   }
 
   async _fetchProjects() {
-    const token = sessionStorage.getItem('accessToken');
+    const token = authStore.token;
     if (!token) {
       this.setState({ error: 'Not authenticated', loading: false });
       return;

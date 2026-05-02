@@ -1,4 +1,5 @@
 import { Component } from '../core/Component.js';
+import { authStore } from '../core/AuthStore.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
@@ -118,7 +119,7 @@ export class ProjectFormComponent extends Component {
       return;
     }
 
-    const token = sessionStorage.getItem('accessToken');
+    const token = authStore.token;
     if (!token) {
       this.setState({ error: 'Not authenticated' });
       return;
@@ -154,13 +155,14 @@ export class ProjectFormComponent extends Component {
 
       this.setState({ submitting: false, error: null });
       this.emit('project:saved', { project: data.project });
+      if (this.props.router) this.props.router.navigate('/');
     } catch {
       this.setState({ submitting: false, error: 'Network error. Please try again.' });
     }
   }
 
   async _fetchProject() {
-    const token = sessionStorage.getItem('accessToken');
+    const token = authStore.token;
     if (!token) return;
 
     this.setState({ loading: true });

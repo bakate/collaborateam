@@ -1,4 +1,5 @@
 import { Component } from '../core/Component.js';
+import { authStore } from '../core/AuthStore.js';
 import { createButton, createSpinner } from '@workspace/ui/components/Button';
 
 const API_BASE = '/api';
@@ -82,7 +83,12 @@ export class TaskListComponent extends Component {
       label: '+ Add Task',
       variant: 'primary',
     });
-    addBtn.addEventListener('click', () => this.emit('task:create'));
+    addBtn.addEventListener('click', () => {
+      if (this.props.router) {
+        this.props.router.navigate(`/projects/${this.props.projectId}/tasks/new`);
+      }
+      this.emit('task:create');
+    });
     header.appendChild(addBtn);
 
     wrapper.appendChild(header);
@@ -183,7 +189,12 @@ export class TaskListComponent extends Component {
       label: 'Edit',
       variant: 'ghost',
     });
-    editBtn.addEventListener('click', () => this.emit('task:edit', { taskId: task.id }));
+    editBtn.addEventListener('click', () => {
+      if (this.props.router) {
+        this.props.router.navigate(`/projects/${this.props.projectId}/tasks/${task.id}/edit`);
+      }
+      this.emit('task:edit', { taskId: task.id });
+    });
 
     const deleteBtn = createButton({
       id: `delete-task-${task.id}`,
@@ -204,7 +215,7 @@ export class TaskListComponent extends Component {
   }
 
   async _handleDelete(taskId) {
-    const token = sessionStorage.getItem('accessToken');
+    const token = authStore.token;
     if (!token) return;
 
     try {
@@ -240,7 +251,7 @@ export class TaskListComponent extends Component {
     reordered.splice(toIndex, 0, moved);
     this.setState({ tasks: reordered });
 
-    const token = sessionStorage.getItem('accessToken');
+    const token = authStore.token;
     if (!token) return;
 
     const reorderPayload = reordered.map((task, index) => ({ id: task.id, order: index }));
@@ -261,7 +272,7 @@ export class TaskListComponent extends Component {
   }
 
   async _fetchTasks() {
-    const token = sessionStorage.getItem('accessToken');
+    const token = authStore.token;
     if (!token) {
       this.setState({ error: 'Not authenticated', loading: false });
       return;
