@@ -2,11 +2,48 @@
  * Project Service (Application Use Case)
  * Handles CRUD operations for Projects, enforcing business rules like ownership.
  */
-export const createProjectService = ({ projectRepository }) => {
+export const createProjectService = ({ projectRepository, taskRepository, withTransaction }) => {
   return Object.freeze({
     /**
-     * Creates a new project.
+     * Creates a new project with an initial default task using a transaction.
      * @param {Object} input - { name, description, ownerId }
+     */
+    async createWithDefaultTask({ name, description, ownerId }) {
+      // 0. Pre-persistence Validation
+      if (!name || name.trim().length < 3) {
+        return { ok: false, error: new Error('Project name must be at least 3 characters') };
+      }
+      if (!ownerId) {
+        return { ok: false, error: new Error('ownerId is required') };
+      }
+      if (!withTransaction) {
+        return { ok: false, error: new Error('Transaction support not available') };
+      }
+
+      try {
+        const result = await withTransaction(async (tx) => {
+          // 1. Create the project
+          const project = await projectRepository.create({ name, description, ownerId }, tx);
+
+          // 2. Create the initial task
+          await taskRepository.create({
+            title: '🎉 Welcome to your new project!',
+            description: 'This is your first task. You can edit or delete it.',
+            status: 'todo',
+            projectId: project.id
+          }, tx);
+
+          return project;
+        });
+
+        return { ok: true, value: result };
+      } catch (error) {
+        return { ok: false, error };
+      }
+    },
+
+    /**
+     * Creates a new project.
      */
     async create({ name, description, ownerId }) {
       if (!name || !ownerId) {

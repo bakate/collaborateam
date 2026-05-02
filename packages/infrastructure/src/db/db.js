@@ -22,3 +22,13 @@ export const checkConnection = async () => {
     return false;
   }
 };
+
+/**
+ * Execute a function within a database transaction.
+ * @param {Function} callback - Function receiving the transaction instance
+ */
+export const withTransaction = async (callback) => {
+  return sql.begin(async (tx) => {
+    return callback(tx);
+  });
+};

@@ -1,10 +1,16 @@
 import { createProjectService } from '@workspace/application/projects/ProjectService';
 import { PostgresProjectRepository } from '@workspace/infrastructure/repositories/PostgresProjectRepository';
+import { PostgresTaskRepository } from '@workspace/infrastructure/repositories/PostgresTaskRepository';
+import { withTransaction } from '@workspace/infrastructure/db/db';
 import { validatePayload, createProjectSchema, updateProjectSchema } from '@workspace/infrastructure/schemas/ProjectSchemas';
 import { requireAuth } from '../middlewares/auth.js';
 import { json } from './response.js';
 
-const projectService = createProjectService({ projectRepository: PostgresProjectRepository });
+const projectService = createProjectService({ 
+  projectRepository: PostgresProjectRepository,
+  taskRepository: PostgresTaskRepository,
+  withTransaction
+});
 
 const parseId = (url) => url.pathname.split('/')[3]; // /api/projects/:id
 
@@ -30,7 +36,7 @@ export const handleProjectRoutes = async (req, url) => {
     const validation = validatePayload(createProjectSchema, body);
     if (!validation.ok) return json({ error: validation.error.message }, 400);
 
-    const result = await projectService.create({ ...validation.value, ownerId: req.user.userId });
+    const result = await projectService.createWithDefaultTask({ ...validation.value, ownerId: req.user.userId });
     if (!result.ok) return json({ error: result.error.message }, 500);
 
     return json({ project: result.value }, 201);

@@ -18,16 +18,18 @@ export const PostgresProjectRepository = Object.freeze({
     return rows[0] || null;
   },
 
-  async create({ name, description, ownerId }) {
-    const rows = await sql`
+  async create({ name, description, ownerId }, tx) {
+    const conn = tx || sql;
+    const rows = await conn`
       INSERT INTO projects (name, description, owner_id) VALUES (${name}, ${description}, ${ownerId})
       RETURNING *
     `;
     return rows[0];
   },
 
-  async update({ id, data }) {
-    const rows = await sql`
+  async update({ id, data }, tx) {
+    const conn = tx || sql;
+    const rows = await conn`
       UPDATE projects
       SET
         name = COALESCE(${data.name}, name),
@@ -39,7 +41,8 @@ export const PostgresProjectRepository = Object.freeze({
     return rows[0];
   },
 
-  async delete({ id }) {
-    await sql`DELETE FROM projects WHERE id = ${id}`;
+  async delete({ id }, tx) {
+    const conn = tx || sql;
+    await conn`DELETE FROM projects WHERE id = ${id}`;
   }
 });

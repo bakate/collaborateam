@@ -5,8 +5,9 @@ import { sql } from '../db/db.js';
  * Secondary Adapter (Driven) — lives in infrastructure layer.
  */
 export const PostgresTaskRepository = Object.freeze({
-  async create({ title, description, status, projectId }) {
-    const rows = await sql`
+  async create({ title, description, status, projectId }, tx) {
+    const conn = tx || sql;
+    const rows = await conn`
       INSERT INTO tasks (title, description, status, project_id)
       VALUES (${title}, ${description || ''}, ${status || 'todo'}, ${projectId})
       RETURNING *
@@ -23,8 +24,9 @@ export const PostgresTaskRepository = Object.freeze({
     return rows[0] || null;
   },
 
-  async update({ id, data }) {
-    const rows = await sql`
+  async update({ id, data }, tx) {
+    const conn = tx || sql;
+    const rows = await conn`
       UPDATE tasks
       SET
         title = COALESCE(${data.title ?? null}, title),
@@ -37,8 +39,9 @@ export const PostgresTaskRepository = Object.freeze({
     return rows[0];
   },
 
-  async delete({ id }) {
-    await sql`DELETE FROM tasks WHERE id = ${id}`;
+  async delete({ id }, tx) {
+    const conn = tx || sql;
+    await conn`DELETE FROM tasks WHERE id = ${id}`;
   },
 
   async updateOrder({ tasks }) {
