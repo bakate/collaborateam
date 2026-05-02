@@ -3,6 +3,9 @@ import { checkConnection } from '@workspace/infrastructure/db/db';
 import { runMigrations } from '@workspace/infrastructure/db/migrate';
 import { createBunWebSocketService } from '@workspace/infrastructure/websocket/BunWebSocketService';
 import { applyMiddlewares } from './middlewares/wrapper.js';
+import { handleAuthRoutes } from './routes/auth.routes.js';
+import { handleProjectRoutes } from './routes/projects.routes.js';
+import { handleTaskRoutes } from './routes/tasks.routes.js';
 
 const PORT = process.env.PORT || 3000;
 
@@ -19,7 +22,7 @@ const router = async (req) => {
     });
   }
   
-  // WebSocket upgrade endpoint
+  // WebSocket upgrade
   if (url.pathname === '/ws') {
     const userId = url.searchParams.get('userId');
     if (!userId) {
@@ -27,15 +30,23 @@ const router = async (req) => {
         status: 400, headers: { 'Content-Type': 'application/json' }
       });
     }
-
     const upgraded = globalThis.Bun.server?.upgrade(req, { data: { userId } });
     if (!upgraded) {
       return new Response('WebSocket upgrade failed', { status: 500 });
     }
-    return undefined; // Bun handles the response on upgrade
+    return undefined;
   }
-  
-  // Endpoint to test the global error handler
+
+  // API Routes — first match wins
+  const authResponse = await handleAuthRoutes(req, url);
+  if (authResponse) return authResponse;
+
+  const projectResponse = await handleProjectRoutes(req, url);
+  if (projectResponse) return projectResponse;
+
+  const taskResponse = await handleTaskRoutes(req, url);
+  if (taskResponse) return taskResponse;
+
   if (url.pathname === '/error') {
     throw new Error('Simulated crash for testing global error handler');
   }
