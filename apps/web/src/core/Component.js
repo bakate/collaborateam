@@ -7,7 +7,7 @@ function updateElement(target, newEl) {
 
   // If node types or tags are different, we must replace entirely
   if (target.nodeType !== newEl.nodeType || target.tagName !== newEl.tagName) {
-    target.replaceWith(newEl.cloneNode(true));
+    target.replaceWith(newEl);
     return newEl;
   }
 
@@ -39,18 +39,6 @@ function updateElement(target, newEl) {
         target.setAttribute(attr.name, attr.value);
       }
     }
-
-    // Sync special properties that aren't purely attributes
-    if (
-      target.value !== undefined &&
-      target.value !== newEl.value &&
-      target !== document.activeElement
-    ) {
-      target.value = newEl.value;
-    }
-    if (target.checked !== undefined && target.checked !== newEl.checked) {
-      target.checked = newEl.checked;
-    }
   }
 
   // Update children
@@ -60,11 +48,25 @@ function updateElement(target, newEl) {
 
   for (let i = 0; i < max; i++) {
     if (!targetChildren[i]) {
-      target.appendChild(newChildren[i].cloneNode(true));
+      target.appendChild(newChildren[i]);
     } else if (!newChildren[i]) {
       target.removeChild(targetChildren[i]);
     } else {
       updateElement(targetChildren[i], newChildren[i]);
+    }
+  }
+
+  // Sync special properties that aren't purely attributes (AFTER children update)
+  if (target.nodeType === Node.ELEMENT_NODE) {
+    if (
+      target.value !== undefined &&
+      target.value !== newEl.value &&
+      target !== document.activeElement
+    ) {
+      target.value = newEl.value;
+    }
+    if (target.checked !== undefined && target.checked !== newEl.checked) {
+      target.checked = newEl.checked;
     }
   }
 
@@ -175,9 +177,8 @@ export class Component {
     const eventsMap = this.events();
     if (!this.element) return;
 
-    for (const [key, methodName] of Object.entries(eventsMap)) {
-      const [eventName, ...selectorParts] = key.split(" ");
-      const selector = selectorParts.join(" ");
+    for (const key of Object.keys(eventsMap)) {
+      const [eventName] = key.split(" ");
 
       if (!this.delegatedListeners.has(eventName)) {
         const rootHandler = (e) =>
