@@ -18,6 +18,7 @@
     "lint": "eslint src"
   },
   "devDependencies": {
+    "@faker-js/faker": "catalog:",
     "fast-check": "catalog:",
     "vitest": "catalog:vitest4",
     "@workspace/vitest-config": "workspace:*",

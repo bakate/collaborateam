@@ -1,5 +1,4 @@
 import { Component } from '../core/Component.js';
-import { authStore } from '../core/AuthStore.js';
 import { createPageLayout } from '../core/PageLayout.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';

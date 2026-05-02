@@ -18,14 +18,14 @@ describe('TaskFormComponent', () => {
   beforeEach(() => {
     container = document.createElement('div');
     document.body.appendChild(container);
-    sessionStorage.setItem('accessToken', 'test_token');
+    localStorage.setItem('accessToken', 'test_token');
   });
 
   afterEach(() => {
     component?.unmount();
     container.remove();
     vi.restoreAllMocks();
-    sessionStorage.clear();
+    localStorage.clear();
   });
 
   describe('Create mode', () => {
@@ -42,7 +42,7 @@ describe('TaskFormComponent', () => {
     });
 
     it('should render "New Task" as title', () => {
-      expect(container.querySelector('h2').textContent).toBe('New Task');
+      expect(container.querySelector('h1').textContent).toBe('New Task');
     });
 
     it('should pre-select "To Do" status by default', () => {
@@ -133,7 +133,7 @@ describe('TaskFormComponent', () => {
     });
 
     it('should show "Edit Task" as title', () => {
-      expect(container.querySelector('h2').textContent).toBe('Edit Task');
+      expect(container.querySelector('h1').textContent).toBe('Edit Task');
     });
 
     it('should pre-fill title and description from fetched task', () => {

@@ -31,11 +31,14 @@ export class WebSocketStatus extends Component {
       error: 'Error'
     };
 
-    return `
-      <div class="ws-status ws-status--${status}" title="WebSocket Connection: ${labels[status]}">
-        <span class="ws-status__dot"></span>
-        <span class="ws-status__label">${labels[status]}</span>
-      </div>
+    const container = document.createElement('div');
+    container.className = `ws-status ws-status--${status}`;
+    container.title = `WebSocket Connection: ${labels[status]}`;
+    container.innerHTML = `
+      <span class="ws-status__dot"></span>
+      <span class="ws-status__label">${labels[status]}</span>
     `;
+
+    return container;
   }
 }

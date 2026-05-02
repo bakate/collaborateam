@@ -1,5 +1,4 @@
 import { authStore } from './AuthStore.js';
-import { wsManager } from './WebSocketManager.js';
 import { WebSocketStatus } from '../components/WebSocketStatus.js';
 
 /**

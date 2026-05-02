@@ -98,8 +98,8 @@ describe('LoginComponent', () => {
 
     await new Promise(resolve => setTimeout(resolve, 10));
 
-    expect(sessionStorage.getItem('accessToken')).toBe('my_access_token');
-    expect(sessionStorage.getItem('refreshToken')).toBe('my_refresh_token');
+    expect(localStorage.getItem('accessToken')).toBe('my_access_token');
+    expect(localStorage.getItem('refreshToken')).toBe('my_refresh_token');
   });
 
   it('should show error message on failed login', async () => {

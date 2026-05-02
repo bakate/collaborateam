@@ -27,6 +27,8 @@ test.describe("Real-time Collaboration", () => {
     await expect(pageA).toHaveURL("/#/");
 
     // Create Project
+    // Wait for loading to finish if any
+    await expect(pageA.getByText(/Loading projects/i)).not.toBeVisible();
     await pageA.getByRole("button", { name: /New Project/i }).click();
     await pageA
       .getByRole("textbox", { name: /Project Name/i })

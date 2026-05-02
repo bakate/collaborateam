@@ -31,8 +31,17 @@ const init = async () => {
   // Initialize Auth
   await authStore.init();
 
-  // Connect WebSockets ONLY after Auth is ready
-  wsManager.connect();
+  // Listen for auth changes to connect/disconnect WebSockets
+  authStore.subscribe(({ isAuthenticated }) => {
+    if (isAuthenticated) {
+      wsManager.connect();
+    }
+  });
+
+  // Initial connect if already authenticated
+  if (authStore.isAuthenticated) {
+    wsManager.connect();
+  }
 
   const router = new Router(routes, appContainer);
   router.init();

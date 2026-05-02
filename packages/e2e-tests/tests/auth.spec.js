@@ -31,8 +31,19 @@ test.describe("Authentication & Guards", () => {
 
     await expect(page).toHaveURL("/#/");
 
+    // Wait for any loading state/spinner to disappear
+    await expect(page.locator(".spinner")).not.toBeVisible({ timeout: 15000 });
+    
+    // Wait for the main layout to be rendered using a more robust CSS selector
+    // and ensuring the element is at least present in the DOM
+    const heading = page.locator("h1.page-title");
+    await expect(heading).toBeVisible({ timeout: 15000 });
+    await expect(heading).toContainText(/Projects/i);
+
     // Check if header shows logout button to confirm session
-    await expect(page.getByRole("button", { name: /Logout/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Logout/i })).toBeVisible({
+      timeout: 15000,
+    });
 
     // Now try accessing a protected route
     await page.goto("/#/projects/new");

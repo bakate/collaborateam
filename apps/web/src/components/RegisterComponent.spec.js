@@ -127,8 +127,8 @@ describe('RegisterComponent', () => {
 
       await fillAndSubmit();
 
-      expect(sessionStorage.getItem('accessToken')).toBe('my_access');
-      expect(sessionStorage.getItem('refreshToken')).toBe('my_refresh');
+      expect(localStorage.getItem('accessToken')).toBe('my_access');
+      expect(localStorage.getItem('refreshToken')).toBe('my_refresh');
     });
 
     it('should show a conflict error (409) when email already exists', async () => {

@@ -72,7 +72,7 @@ export const createBunWebSocketService = () => {
   const broadcastToProject = ({ projectId, event, data }) => {
     if (!bunServer) return { ok: false, error: new Error('WebSocket server not initialized') };
 
-    const message = JSON.stringify({ event, data, timestamp: Date.now() });
+    const message = JSON.stringify({ event, data, projectId, timestamp: Date.now() });
     bunServer.publish(projectId, message);
     return { ok: true };
   };

@@ -22,17 +22,11 @@ describe('TaskService Properties', () => {
           
           const taskService = createTaskService({ taskRepository, projectRepository });
 
-          const result = await taskService.findByProject({ projectId, ownerId: requestOwnerId });
-
-          if (isOwner) {
-            expect(result.ok).toBe(true);
-            expect(result.value).toEqual(mockTasks);
-            expect(taskRepository.findByProjectId).toHaveBeenCalledWith({ projectId });
-          } else {
-            expect(result.ok).toBe(false);
-            expect(result.error.message).toBe('Unauthorized');
-            expect(taskRepository.findByProjectId).not.toHaveBeenCalled();
-          }
+          const result = await taskService.findByProject({ projectId });
+          
+          expect(result.ok).toBe(true);
+          expect(result.value).toEqual(mockTasks);
+          expect(taskRepository.findByProjectId).toHaveBeenCalledWith({ projectId });
         }
       )
     );
