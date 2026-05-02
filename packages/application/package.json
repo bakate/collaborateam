@@ -16,6 +16,7 @@
     "vitest": "catalog:vitest4",
     "@workspace/vitest-config": "workspace:*",
     "@workspace/eslint-config": "workspace:*",
+    "@faker-js/faker": "catalog:",
     "fast-check": "catalog:"
   }
 }

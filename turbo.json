@@ -47,6 +47,7 @@
     "PORT",
     "CORS_ORIGINS",
     "LOG_LEVEL",
-    "DATABASE_URL"
+    "DATABASE_URL",
+    "JWT_SECRET"
   ]
 }
