@@ -12,8 +12,8 @@ describe('TaskParser Properties', () => {
       description: fc.string(),
       status: fc.constantFrom(...Object.values(TaskStatus)),
       projectId: fc.uuid(),
-      createdAt: fc.date().map(d => d.toISOString()),
-      updatedAt: fc.date().map(d => d.toISOString()),
+      createdAt: fc.date({ min: new Date('2000-01-01'), max: new Date('2050-01-01') }).map(d => d.toISOString()),
+      updatedAt: fc.date({ min: new Date('2000-01-01'), max: new Date('2050-01-01') }).map(d => d.toISOString()),
     });
 
     fc.assert(

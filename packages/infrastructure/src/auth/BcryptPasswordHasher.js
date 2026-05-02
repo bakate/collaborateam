@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from "bcryptjs";
 
 const COST_FACTOR = 12;
 
@@ -10,7 +10,7 @@ export const BcryptPasswordHasher = Object.freeze({
    */
   async hash({ password }) {
     if (!password) {
-      throw new Error('Password is required');
+      throw new Error("Password is required");
     }
     return bcrypt.hash(password, COST_FACTOR);
   },
@@ -23,5 +23,5 @@ export const BcryptPasswordHasher = Object.freeze({
   async verify({ password, hash }) {
     if (!password || !hash) return false;
     return bcrypt.compare(password, hash);
-  }
+  },
 });

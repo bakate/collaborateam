@@ -8,7 +8,7 @@
   "dependencies": {
     "@workspace/application": "workspace:*",
     "@workspace/domain": "workspace:*",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.2",
     "pino": "^8.20.0",
     "postgres": "^3.4.4",
