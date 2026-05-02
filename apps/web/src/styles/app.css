@@ -517,3 +517,50 @@
     justify-content: space-between;
   }
 }
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: var(--space-xl);
+  right: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.toast {
+  min-width: 300px;
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: rgba(30, 41, 59, 0.9);
+  backdrop-filter: blur(12px);
+  color: white;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  pointer-events: auto;
+  animation: toast-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 4px solid var(--primary-color);
+  font-weight: 500;
+}
+
+.toast--success { border-left-color: #22c55e; }
+.toast--error { border-left-color: #ef4444; }
+.toast--info { border-left-color: var(--primary-color); }
+
+.toast--exit {
+  animation: toast-out 0.3s forwards;
+}
+
+@keyframes toast-in {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes toast-out {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}

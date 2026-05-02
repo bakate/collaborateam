@@ -7,26 +7,21 @@ import { wsManager } from './core/WebSocketManager.js';
 import { Router } from './core/Router.js';
 import { authStore } from './core/AuthStore.js';
 
-// Initialize WebSockets moved inside init()
-
-import { LoginComponent } from './components/LoginComponent.js';
-import { RegisterComponent } from './components/RegisterComponent.js';
-import { ProjectListComponent } from './components/ProjectListComponent.js';
-import { ProjectFormComponent } from './components/ProjectFormComponent.js';
-import { TaskListComponent } from './components/TaskListComponent.js';
-import { TaskFormComponent } from './components/TaskFormComponent.js';
-
 const appContainer = document.getElementById('app');
 
+/**
+ * Lazy-loaded routes definition.
+ * Each component is only downloaded when the user navigates to the route.
+ */
 const routes = [
-  { path: '/login', component: LoginComponent, layout: 'auth-layout' },
-  { path: '/register', component: RegisterComponent, layout: 'auth-layout' },
-  { path: '/', component: ProjectListComponent, protected: true },
-  { path: '/projects/new', component: ProjectFormComponent, protected: true },
-  { path: '/projects/:projectId', component: TaskListComponent, protected: true },
-  { path: '/projects/:projectId/edit', component: ProjectFormComponent, protected: true },
-  { path: '/projects/:projectId/tasks/new', component: TaskFormComponent, protected: true },
-  { path: '/projects/:projectId/tasks/:taskId/edit', component: TaskFormComponent, protected: true },
+  { path: '/login', component: () => import('./components/LoginComponent.js'), layout: 'auth-layout' },
+  { path: '/register', component: () => import('./components/RegisterComponent.js'), layout: 'auth-layout' },
+  { path: '/', component: () => import('./components/ProjectListComponent.js'), protected: true },
+  { path: '/projects/new', component: () => import('./components/ProjectFormComponent.js'), protected: true },
+  { path: '/projects/:projectId', component: () => import('./components/TaskListComponent.js'), protected: true },
+  { path: '/projects/:projectId/edit', component: () => import('./components/ProjectFormComponent.js'), protected: true },
+  { path: '/projects/:projectId/tasks/new', component: () => import('./components/TaskFormComponent.js'), protected: true },
+  { path: '/projects/:projectId/tasks/:taskId/edit', component: () => import('./components/TaskFormComponent.js'), protected: true },
 ];
 
 const init = async () => {

@@ -2,9 +2,10 @@ import { Component } from "../core/Component.js";
 import { authStore } from "../core/AuthStore.js";
 import { createPageLayout } from "../core/PageLayout.js";
 import { wsManager } from "../core/WebSocketManager.js";
+import { apiClient } from "../core/APIClient.js";
+import { toast } from "../core/ToastManager.js";
+import { TaskFilterComponent } from "./TaskFilterComponent.js";
 import { createButton, createSpinner } from "@workspace/ui/components/Button";
-
-const API_BASE = "/api";
 
 const STATUS_LABELS = {
   todo: "To Do",
@@ -42,6 +43,8 @@ export class TaskListComponent extends Component {
       error: null,
       draggingId: null,
       highlightedId: null,
+      search: "",
+      status: "all",
       view: localStorage.getItem("taskView") || "list",
     };
   }
@@ -77,22 +80,14 @@ export class TaskListComponent extends Component {
   }
 
   async _fetchProject() {
-    const token = authStore.token;
-    if (!token) return;
-
     try {
-      const response = await fetch(
-        `${API_BASE}/projects/${this.props.projectId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const response = await apiClient.get(`/projects/${this.props.projectId}`);
       if (response.ok) {
         const data = await response.json();
         this.setState({ project: data.project });
       }
     } catch {
-      // Silent fail
+      toast.error("Failed to load project details");
     }
   }
 
@@ -201,39 +196,63 @@ export class TaskListComponent extends Component {
       return wrapper;
     }
 
-    if (this.state.tasks.length === 0) {
-      const empty = document.createElement("p");
-      empty.className = "task-list__empty";
-      empty.textContent = "No tasks yet. Add one to get started!";
-      container.appendChild(empty);
-      wrapper.appendChild(container);
-      return wrapper;
-    }
+    // 4. Apply Filters (Local filtering for performance)
+    const filteredTasks = this.state.tasks.filter((task) => {
+      const matchesSearch = task.title
+        .toLowerCase()
+        .includes(this.state.search.toLowerCase());
+      const matchesStatus =
+        this.state.status === "all" || task.status === this.state.status;
+      return matchesSearch && matchesStatus;
+    });
 
+    // 5. Build Final UI
     const content =
       this.state.view === "kanban"
-        ? this._renderKanbanView()
-        : this._renderListView();
+        ? this._renderKanbanView(filteredTasks)
+        : this._renderListView(filteredTasks);
 
+    // 6. Add Filter Component at the top
+    const filterComp = new TaskFilterComponent({
+      search: this.state.search,
+      status: this.state.status,
+    });
+    filterComp.on("filter:change", (filters) => {
+      this.setState({ ...filters });
+    });
+    container.appendChild(filterComp.mount());
+    
     container.appendChild(content);
     wrapper.appendChild(container);
     return wrapper;
   }
 
-  _renderListView() {
+  _renderListView(tasks) {
     const list = document.createElement("div");
     list.className = "task-list__items";
     list.setAttribute("role", "list");
 
-    this.state.tasks.forEach((task) => {
+    tasks.forEach((task) => {
       const item = this._renderTaskItem(task);
       list.appendChild(item);
     });
 
+    if (tasks.length === 0 && this.state.tasks.length > 0) {
+      const empty = document.createElement("p");
+      empty.className = "task-list__empty";
+      empty.textContent = "No tasks match your filters.";
+      list.appendChild(empty);
+    } else if (tasks.length === 0) {
+      const empty = document.createElement("p");
+      empty.className = "task-list__empty";
+      empty.textContent = "No tasks yet. Add one to get started!";
+      list.appendChild(empty);
+    }
+
     return list;
   }
 
-  _renderKanbanView() {
+  _renderKanbanView(tasks) {
     const board = document.createElement("div");
     board.className = "kanban-board";
 
@@ -270,7 +289,7 @@ export class TaskListComponent extends Component {
       colTitle.textContent = col.label;
       colHeader.appendChild(colTitle);
 
-      const colTasks = this.state.tasks.filter((t) => t.status === col.id);
+      const colTasks = tasks.filter((t) => t.status === col.id);
       const colCount = document.createElement("span");
       colCount.className = "kanban-column__count";
       colCount.textContent = colTasks.length;
@@ -302,20 +321,18 @@ export class TaskListComponent extends Component {
     );
     this.setState({ tasks: updatedTasks });
 
-    const token = authStore.token;
-    if (!token) return;
-
     try {
-      await fetch(`${API_BASE}/tasks/${taskId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
+      const response = await apiClient.put(`/tasks/${taskId}`, {
+        status: newStatus,
+        projectId: this.props.projectId,
       });
-    } catch {
-      // Revert on fail
+
+      if (!response.ok) {
+        throw new Error("Failed to update task status");
+      }
+    } catch (err) {
+      toast.error(err.message);
+      // Revert optimistic update
       this._fetchTasks();
     }
   }
@@ -439,23 +456,21 @@ export class TaskListComponent extends Component {
     if (!token) return;
 
     try {
-      const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ projectId: this.props.projectId }),
+      const response = await apiClient.delete(`/tasks/${taskId}`, {
+        projectId: this.props.projectId,
       });
 
-      if (!response.ok) return;
-
-      this.setState({
-        tasks: this.state.tasks.filter((task) => task.id !== taskId),
-      });
-      this.emit("task:deleted", { taskId });
-    } catch {
-      // Silent fail — the task stays in the list
+      if (response.ok) {
+        this.setState({
+          tasks: this.state.tasks.filter((task) => task.id !== taskId),
+        });
+        this.emit("task:deleted", { taskId });
+        toast.success("Task deleted");
+      } else {
+        throw new Error("Failed to delete task");
+      }
+    } catch (err) {
+      toast.error(err.message);
     }
   }
 
@@ -480,56 +495,33 @@ export class TaskListComponent extends Component {
     }));
 
     try {
-      await fetch(
-        `${API_BASE}/projects/${this.props.projectId}/tasks/reorder`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ tasks: reorderPayload }),
-        },
-      );
-    } catch {
-      // On network failure, revert to original order
+      await apiClient.put(`/projects/${this.props.projectId}/tasks/reorder`, {
+        tasks: reorderPayload,
+      });
+    } catch (err) {
+      toast.error("Failed to save new order");
       this.setState({ tasks });
     }
   }
 
   async _fetchTasks() {
-    const token = authStore.token;
-    if (!token) {
-      this.setState({ error: "Not authenticated", loading: false });
-      return;
-    }
-
     this.setState({ loading: true, error: null });
 
     try {
-      const response = await fetch(
-        `${API_BASE}/projects/${this.props.projectId}/tasks`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        },
+      const response = await apiClient.get(
+        `/projects/${this.props.projectId}/tasks`,
       );
 
       if (!response.ok) {
         const data = await response.json();
-        this.setState({
-          loading: false,
-          error: data.error || "Failed to load tasks",
-        });
-        return;
+        throw new Error(data.error || "Failed to load tasks");
       }
 
       const data = await response.json();
       this.setState({ loading: false, tasks: data.tasks });
-    } catch {
-      this.setState({
-        loading: false,
-        error: "Network error. Please try again.",
-      });
+    } catch (err) {
+      this.setState({ loading: false, error: err.message });
+      toast.error(err.message);
     }
   }
 }

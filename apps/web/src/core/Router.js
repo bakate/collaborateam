@@ -1,3 +1,5 @@
+import { authStore } from './AuthStore.js';
+
 /**
  * Router — Simple hash-based router for Vanilla JS.
  */
@@ -21,7 +23,6 @@ export class Router {
   resolve() {
     const hash = window.location.hash.slice(1) || '/';
     
-    // Find matching route
     let match = null;
     let params = {};
 
@@ -49,7 +50,6 @@ export class Router {
 
     if (!match) {
       console.error('No route found for:', hash);
-      // Default to / projects or login
       return this.navigate('/login');
     }
 
@@ -57,8 +57,8 @@ export class Router {
   }
 
   async _renderRoute(route, params) {
-    // Auth Guard
-    if (route.protected && !this._isAuthenticated()) {
+    // Auth Guard using AuthStore
+    if (route.protected && !authStore.isAuthenticated) {
       return this.navigate('/login');
     }
 
@@ -70,11 +70,28 @@ export class Router {
     // Clear container
     this.container.innerHTML = '';
 
-    // Instantiate and mount new component
-    const ComponentClass = route.component;
+    // Lazy Loading Support
+    let ComponentClass = route.component;
+    if (typeof ComponentClass === 'function' && !ComponentClass.prototype?.mount) {
+      // Show a sleek loading state
+      this.container.innerHTML = `
+        <div class="loading-screen" style="display:flex; justify-content:center; align-items:center; height:100vh;">
+          <div class="spinner"></div>
+        </div>
+      `;
+      try {
+        const module = await ComponentClass();
+        // Handle both 'export default' and 'export const'
+        ComponentClass = module.default || Object.values(module)[0];
+      } catch (err) {
+        console.error('[Router] Failed to lazy-load component:', err);
+        return this.navigate('/');
+      }
+    }
+
+    // Instantiate and mount
     this.currentComponent = new ComponentClass({ ...params, router: this });
     
-    // Apply layout class if defined
     if (route.layout) {
       this.container.className = route.layout;
     } else {
@@ -82,10 +99,5 @@ export class Router {
     }
 
     this.currentComponent.mount(this.container);
-  }
-
-  _isAuthenticated() {
-    // This should be provided by an AuthStore
-    return !!sessionStorage.getItem('accessToken');
   }
 }
