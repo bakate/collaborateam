@@ -3,22 +3,28 @@ import fc from 'fast-check';
 import { createProjectService } from './ProjectService.js';
 
 describe('ProjectService Properties', () => {
-  it('Property 12: Project List Matches User\'s Projects', async () => {
+  it('Property 12: Project List is Publicly Accessible (with optional filter)', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.uuid(),
         fc.array(fc.record({ id: fc.uuid(), name: fc.string() })),
-        async (ownerId, mockProjects) => {
+        fc.option(fc.uuid(), { nil: undefined }), // Optional ownerId
+        async (mockProjects, ownerId) => {
           const projectRepository = {
+            findAll: vi.fn().mockResolvedValue(mockProjects),
             findByOwnerId: vi.fn().mockResolvedValue(mockProjects)
           };
           const projectService = createProjectService({ projectRepository });
 
-          const result = await projectService.findAll({ ownerId });
+          const result = await projectService.findAll(ownerId ? { ownerId } : undefined);
 
           expect(result.ok).toBe(true);
           expect(result.value).toEqual(mockProjects);
-          expect(projectRepository.findByOwnerId).toHaveBeenCalledWith({ ownerId });
+
+          if (ownerId) {
+            expect(projectRepository.findByOwnerId).toHaveBeenCalledWith({ ownerId });
+          } else {
+            expect(projectRepository.findAll).toHaveBeenCalled();
+          }
         }
       )
     );

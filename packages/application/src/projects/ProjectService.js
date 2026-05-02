@@ -22,16 +22,15 @@ export const createProjectService = ({ projectRepository }) => {
     },
 
     /**
-     * Finds all projects belonging to a user.
-     * @param {Object} input - { ownerId }
+     * Finds all projects. Publicly visible to all authenticated users.
+     * Optionally filters by ownerId to show only a user's own projects.
+     * @param {Object} [input] - { ownerId? }
      */
-    async findAll({ ownerId }) {
-      if (!ownerId) {
-        return { ok: false, error: new Error('ownerId is required') };
-      }
-
+    async findAll({ ownerId } = {}) {
       try {
-        const projects = await projectRepository.findByOwnerId({ ownerId });
+        const projects = ownerId
+          ? await projectRepository.findByOwnerId({ ownerId })
+          : await projectRepository.findAll();
         return { ok: true, value: projects };
       } catch (error) {
         return { ok: false, error };
@@ -39,12 +38,12 @@ export const createProjectService = ({ projectRepository }) => {
     },
 
     /**
-     * Finds a project by its ID, ensuring the owner matches.
-     * @param {Object} input - { id, ownerId }
+     * Finds a project by its ID. Publicly visible to all authenticated users.
+     * @param {Object} input - { id }
      */
-    async findById({ id, ownerId }) {
-      if (!id || !ownerId) {
-        return { ok: false, error: new Error('id and ownerId are required') };
+    async findById({ id }) {
+      if (!id) {
+        return { ok: false, error: new Error('id is required') };
       }
 
       try {
@@ -52,11 +51,6 @@ export const createProjectService = ({ projectRepository }) => {
         if (!project) {
           return { ok: false, error: new Error('Project not found') };
         }
-
-        if (project.ownerId !== ownerId) {
-          return { ok: false, error: new Error('Unauthorized') };
-        }
-
         return { ok: true, value: project };
       } catch (error) {
         return { ok: false, error };

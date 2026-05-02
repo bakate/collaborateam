@@ -81,6 +81,33 @@ describe('TaskService Unit Tests', () => {
     });
   });
 
+  describe('findByProject()', () => {
+    it('should return tasks for any valid project (no ownership required)', async () => {
+      const projectId = faker.string.uuid();
+      const mockTasks = [{ id: faker.string.uuid(), title: faker.lorem.words(), projectId }];
+
+      // Note: the project may belong to someone else — still accessible
+      projectRepository.findById.mockResolvedValue({ id: projectId, ownerId: faker.string.uuid() });
+      taskRepository.findByProjectId.mockResolvedValue(mockTasks);
+
+      const result = await taskService.findByProject({ projectId });
+
+      expect(result.ok).toBe(true);
+      expect(result.value).toEqual(mockTasks);
+      expect(taskRepository.findByProjectId).toHaveBeenCalledWith({ projectId });
+    });
+
+    it('should fail if the project does not exist', async () => {
+      projectRepository.findById.mockResolvedValue(null);
+
+      const result = await taskService.findByProject({ projectId: faker.string.uuid() });
+
+      expect(result.ok).toBe(false);
+      expect(result.error.message).toBe('Project not found');
+      expect(taskRepository.findByProjectId).not.toHaveBeenCalled();
+    });
+  });
+
   describe('update()', () => {
     it('should update task and return in < 200ms', async () => {
       const ownerId = faker.string.uuid();

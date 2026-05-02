@@ -9,6 +9,7 @@ describe('ProjectService Unit Tests', () => {
   beforeEach(() => {
     projectRepository = {
       create: vi.fn(),
+      findAll: vi.fn(),
       findByOwnerId: vi.fn(),
       findById: vi.fn(),
       update: vi.fn(),
@@ -49,29 +50,53 @@ describe('ProjectService Unit Tests', () => {
       expect(result.error.message).toContain('Missing required fields');
       expect(projectRepository.create).not.toHaveBeenCalled();
     });
+
+  describe('findAll()', () => {
+    it('should return all projects when no filter is given', async () => {
+      const mockProjects = [{ id: faker.string.uuid(), name: faker.company.name() }];
+      projectRepository.findAll.mockResolvedValue(mockProjects);
+
+      const result = await projectService.findAll();
+
+      expect(result.ok).toBe(true);
+      expect(result.value).toEqual(mockProjects);
+      expect(projectRepository.findAll).toHaveBeenCalled();
+      expect(projectRepository.findByOwnerId).not.toHaveBeenCalled();
+    });
+
+    it('should filter by ownerId when provided', async () => {
+      const ownerId = faker.string.uuid();
+      const myProjects = [{ id: faker.string.uuid(), name: faker.company.name(), ownerId }];
+      projectRepository.findByOwnerId.mockResolvedValue(myProjects);
+
+      const result = await projectService.findAll({ ownerId });
+
+      expect(result.ok).toBe(true);
+      expect(result.value).toEqual(myProjects);
+      expect(projectRepository.findByOwnerId).toHaveBeenCalledWith({ ownerId });
+      expect(projectRepository.findAll).not.toHaveBeenCalled();
+    });
+  });
   });
 
   describe('findById()', () => {
-    it('should return the project if user is owner', async () => {
-      const ownerId = faker.string.uuid();
-      const mockProject = { id: faker.string.uuid(), ownerId };
+    it('should return any project regardless of ownership', async () => {
+      const mockProject = { id: faker.string.uuid(), ownerId: faker.string.uuid() };
       projectRepository.findById.mockResolvedValue(mockProject);
 
-      const result = await projectService.findById({ id: mockProject.id, ownerId });
+      const result = await projectService.findById({ id: mockProject.id });
       
       expect(result.ok).toBe(true);
       expect(result.value).toEqual(mockProject);
     });
 
-    it('should return Unauthorized if user is not owner', async () => {
-      const ownerId = faker.string.uuid();
-      const mockProject = { id: faker.string.uuid(), ownerId: faker.string.uuid() };
-      projectRepository.findById.mockResolvedValue(mockProject);
+    it('should return not found when project does not exist', async () => {
+      projectRepository.findById.mockResolvedValue(null);
 
-      const result = await projectService.findById({ id: mockProject.id, ownerId });
+      const result = await projectService.findById({ id: faker.string.uuid() });
       
       expect(result.ok).toBe(false);
-      expect(result.error.message).toBe('Unauthorized');
+      expect(result.error.message).toBe('Project not found');
     });
   });
 

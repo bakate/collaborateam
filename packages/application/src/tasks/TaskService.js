@@ -35,17 +35,19 @@ export const createTaskService = ({ taskRepository, projectRepository }) => {
     },
 
     /**
-     * Finds all tasks for a specific project.
-     * @param {Object} input - { projectId, ownerId }
+     * Finds all tasks for a specific project. Publicly visible to all authenticated users.
+     * @param {Object} input - { projectId }
      */
-    async findByProject({ projectId, ownerId }) {
-      if (!projectId || !ownerId) {
-        return { ok: false, error: new Error('Missing required fields') };
+    async findByProject({ projectId }) {
+      if (!projectId) {
+        return { ok: false, error: new Error('projectId is required') };
       }
 
       try {
-        const authCheck = await ensureProjectOwnership({ projectId, ownerId });
-        if (!authCheck.ok) return authCheck;
+        const project = await projectRepository.findById({ id: projectId });
+        if (!project) {
+          return { ok: false, error: new Error('Project not found') };
+        }
 
         const tasks = await taskRepository.findByProjectId({ projectId });
         return { ok: true, value: tasks };
