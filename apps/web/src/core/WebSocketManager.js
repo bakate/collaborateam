@@ -16,7 +16,6 @@ class WebSocketManager {
     if (this.socket || !authStore.token || !authStore.user) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    // Server requires userId in query params for upgrade
     const wsUrl = `${protocol}//${window.location.host}/ws?userId=${authStore.user.id}`;
 
     console.log('[WS] Connecting to', wsUrl);
@@ -25,6 +24,7 @@ class WebSocketManager {
     this.socket.onopen = () => {
       console.log('[WS] Connected');
       this.reconnectAttempts = 0;
+      this._dispatch({ type: 'ws:status', data: 'connected' });
     };
 
     this.socket.onmessage = (event) => {
@@ -32,7 +32,6 @@ class WebSocketManager {
         const payload = JSON.parse(event.data);
         console.log('[WS] Received:', payload);
         
-        // Normalize event naming (server uses 'event', client likes 'type')
         const normalized = {
           type: payload.type || payload.event,
           data: payload.data,
@@ -48,11 +47,13 @@ class WebSocketManager {
     this.socket.onclose = () => {
       console.log('[WS] Disconnected');
       this.socket = null;
+      this._dispatch({ type: 'ws:status', data: 'disconnected' });
       this._attemptReconnect();
     };
 
     this.socket.onerror = (err) => {
       console.error('[WS] Error:', err);
+      this._dispatch({ type: 'ws:status', data: 'error' });
     };
   }
 
@@ -61,6 +62,7 @@ class WebSocketManager {
       this.reconnectAttempts++;
       const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
       console.log(`[WS] Reconnecting in ${delay}ms...`);
+      this._dispatch({ type: 'ws:status', data: 'connecting' });
       setTimeout(() => this.connect(), delay);
     }
   }

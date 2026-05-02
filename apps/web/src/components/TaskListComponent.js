@@ -41,6 +41,7 @@ export class TaskListComponent extends Component {
       loading: false,
       error: null,
       draggingId: null,
+      highlightedId: null,
       view: localStorage.getItem("taskView") || "list",
     };
   }
@@ -99,6 +100,7 @@ export class TaskListComponent extends Component {
    * Called by the subscription when a WebSocket message arrives.
    */
   applyWsUpdate({ type, data }) {
+    // 1. Update state
     if (type === "task:created") {
       this.setState({ tasks: [...this.state.tasks, data] });
     } else if (type === "task:updated") {
@@ -112,12 +114,21 @@ export class TaskListComponent extends Component {
         tasks: this.state.tasks.filter((t) => t.id !== data.id),
       });
     } else if (type === "task:reordered") {
-      // data is expected to be an array of { id, order }
       const orderMap = new Map(data.map((item) => [item.id, item.order]));
       const reordered = [...this.state.tasks].sort(
         (a, b) => (orderMap.get(a.id) ?? 0) - (orderMap.get(b.id) ?? 0),
       );
       this.setState({ tasks: reordered });
+    }
+
+    // 2. Trigger visual highlight for creation or update
+    if (["task:created", "task:updated"].includes(type)) {
+      this.setState({ highlightedId: data.id });
+      setTimeout(() => {
+        if (this.state.highlightedId === data.id) {
+          this.setState({ highlightedId: null });
+        }
+      }, 1500);
     }
   }
 
@@ -310,8 +321,9 @@ export class TaskListComponent extends Component {
   }
 
   _renderTaskItem(task) {
+    const isHighlighted = this.state.highlightedId === task.id;
     const item = document.createElement("div");
-    item.className = "task-card";
+    item.className = `task-card ${isHighlighted ? "task-card--highlight" : ""}`;
     item.dataset.taskId = task.id;
     item.draggable = true;
 
