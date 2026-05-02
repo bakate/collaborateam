@@ -45,6 +45,8 @@
     "PGPASSWORD",
     "PGSSLMODE",
     "PORT",
-    "CORS_ORIGINS"
+    "CORS_ORIGINS",
+    "LOG_LEVEL",
+    "DATABASE_URL"
   ]
 }
