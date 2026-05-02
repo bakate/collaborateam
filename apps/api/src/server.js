@@ -3,6 +3,7 @@ import { checkConnection } from '@workspace/infrastructure/db/db';
 import { runMigrations } from '@workspace/infrastructure/db/migrate';
 import { createBunWebSocketService } from '@workspace/infrastructure/websocket/BunWebSocketService';
 import { applyMiddlewares } from './middlewares/wrapper.js';
+import { responseCache } from './middlewares/cache.js';
 import { handleAuthRoutes } from './routes/auth.routes.js';
 import { handleProjectRoutes } from './routes/projects.routes.js';
 import { handleTaskRoutes } from './routes/tasks.routes.js';
@@ -103,9 +104,12 @@ const startServer = async () => {
     logger.warn('Could not connect to database. Continuing without DB for now...');
   }
 
+  // Wrap router with cache middleware
+  const cachedRouter = responseCache(300000)(router);
+
   const server = globalThis.Bun.serve({
     port: PORT,
-    fetch: applyMiddlewares(router),
+    fetch: applyMiddlewares(cachedRouter),
     websocket,
   });
 

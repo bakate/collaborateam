@@ -41,6 +41,11 @@ export const runMigrations = async () => {
       )
     `;
 
+    // 🚀 Performance Optimization: Add Indexes
+    await sql`CREATE INDEX IF NOT EXISTS idx_projects_owner_id ON projects(owner_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status)`;
+
     logger.info('Migrations completed successfully');
     return { ok: true };
   } catch (error) {
