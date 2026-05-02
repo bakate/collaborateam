@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "type": "module",
   "exports": {
-    "./*": "./src/*.js",
     "./components/*": "./src/components/*.js"
   },
   "scripts": {
