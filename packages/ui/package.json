@@ -1,0 +1,20 @@
+{
+  "name": "@workspace/ui",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    "./*": "./src/*.js",
+    "./components/*": "./src/components/*.js"
+  },
+  "scripts": {
+    "test": "vitest",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
+    "@workspace/vitest-config": "workspace:*",
+    "jsdom": "^29.1.1",
+    "vitest": "catalog:vitest4"
+  }
+}

@@ -5,7 +5,8 @@
   "dependencies": {
     "@workspace/domain": "workspace:*",
     "@workspace/application": "workspace:*",
-    "@workspace/infrastructure": "workspace:*"
+    "@workspace/infrastructure": "workspace:*",
+    "@workspace/ui": "workspace:*"
   },
   "scripts": {
     "test": "vitest",
