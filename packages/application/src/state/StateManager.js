@@ -83,7 +83,7 @@ export class StateManager {
    * @private
    */
   notify(newState, prevState) {
-    const start = performance.now();
+    const start = Date.now();
     
     for (const { listener, path } of this.listeners) {
       if (path) {
@@ -99,9 +99,9 @@ export class StateManager {
       }
     }
 
-    const elapsed = performance.now() - start;
+    const elapsed = Date.now() - start;
     if (elapsed > 10) {
-      console.warn(`[StateManager] Notifications took ${elapsed.toFixed(2)}ms (exceeds 10ms threshold)`);
+      console.warn(`[StateManager] Notifications took ${elapsed}ms (exceeds 10ms threshold)`);
     }
   }
 

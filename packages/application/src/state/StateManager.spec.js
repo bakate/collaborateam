@@ -1,11 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { faker } from "@faker-js/faker";
 import { StateManager } from "./StateManager.js";
 
 describe("StateManager Unit Tests", () => {
   let store;
+  let initialName;
 
   beforeEach(() => {
-    store = new StateManager({ user: { name: "Alice" }, count: 0 });
+    initialName = faker.person.firstName();
+    store = new StateManager({ user: { name: initialName }, count: 0 });
   });
 
   it("should initialize with frozen state", () => {
@@ -49,8 +52,9 @@ describe("StateManager Unit Tests", () => {
     expect(userListener).not.toHaveBeenCalled();
 
     // Update user -> should notify userListener
-    store.setState((state) => ({ user: { ...state.user, name: "Bob" } }));
-    expect(userListener).toHaveBeenCalledWith("Bob", "Alice");
+    const newName = faker.person.firstName();
+    store.setState((state) => ({ user: { ...state.user, name: newName } }));
+    expect(userListener).toHaveBeenCalledWith(newName, initialName);
   });
 
   it("should allow unsubscribing", () => {
