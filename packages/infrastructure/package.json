@@ -6,16 +6,19 @@
     "./*": "./src/*.js"
   },
   "dependencies": {
-    "@workspace/domain": "workspace:*",
-    "@workspace/application": "workspace:*"
+    "@workspace/application": "workspace:*",
+    "@workspace/domain": "workspace:*"
   },
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "lint": "eslint src"
   },
   "devDependencies": {
-    "vitest": "catalog:vitest4",
+    "@faker-js/faker": "catalog:",
+    "@workspace/eslint-config": "workspace:*",
     "@workspace/vitest-config": "workspace:*",
     "fast-check": "catalog:",
-    "@faker-js/faker": "catalog:"
+    "jsdom": "^29.1.1",
+    "vitest": "catalog:vitest4"
   }
 }
