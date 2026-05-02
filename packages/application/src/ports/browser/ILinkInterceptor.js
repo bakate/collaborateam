@@ -4,16 +4,16 @@
 export class ILinkInterceptor {
   /**
    * Intercepts link clicks for client-side navigation
-   * @param {Function} callback Function called with the URL when a link is clicked
+   * @param {Function} _callback Function called with the URL when a link is clicked
    */
-  intercept(callback) {
-    throw new Error('Not implemented');
+  intercept(_callback) {
+    throw new Error("Not implemented");
   }
 
   /**
    * Cleans up event listeners
    */
   destroy() {
-    throw new Error('Not implemented');
+    throw new Error("Not implemented");
   }
 }

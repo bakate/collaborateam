@@ -6,10 +6,12 @@
     "./*": "./src/*.js"
   },
   "scripts": {
-    "test": "vitest"
+    "test": "vitest",
+    "lint": "eslint src"
   },
   "devDependencies": {
     "vitest": "catalog:vitest4",
-    "@workspace/vitest-config": "workspace:*"
+    "@workspace/vitest-config": "workspace:*",
+    "@workspace/eslint-config": "workspace:*"
   }
 }
