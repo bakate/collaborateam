@@ -18,6 +18,9 @@ catalogs:
     prettier:
       specifier: 3.8.3
       version: 3.8.3
+    zod:
+      specifier: ^4.4.2
+      version: 4.4.2
   vitest4:
     '@vitest/coverage-v8':
       specifier: 4.0.17
@@ -189,6 +192,9 @@ importers:
       postgres:
         specifier: ^3.4.4
         version: 3.4.9
+      zod:
+        specifier: 'catalog:'
+        version: 4.4.2
     devDependencies:
       '@faker-js/faker':
         specifier: 'catalog:'
@@ -2250,6 +2256,9 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
 
+  zod@4.4.2:
+    resolution: {integrity: sha512-IynmDyxsEsb9RKzO3J9+4SxXnl2FTFSzNBaKKaMV6tsSk0rw9gYw9gs+JFCq/qk2LCZ78KDwyj+Z289TijSkUw==}
+
 snapshots:
 
   '@asamuzakjp/css-color@5.1.11':
@@ -4178,3 +4187,5 @@ snapshots:
       yargs-parser: 21.1.1
 
   yocto-queue@0.1.0: {}
+
+  zod@4.4.2: {}
