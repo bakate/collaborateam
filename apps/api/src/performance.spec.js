@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import fc from 'fast-check';
 import { applyMiddlewares } from './middlewares/wrapper.js';
 import { responseCache } from './middlewares/cache.js';
 
-describe('Performance Tests', () => {
+describe('Performance Property-Based Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -19,30 +20,25 @@ describe('Performance Tests', () => {
 
     const wrappedHandler = applyMiddlewares(responseCache(5000)(mockHandler));
 
-    // Test with multiple URLs
-    const urls = [
-      'http://localhost/api/projects',
-      'http://localhost/api/projects/1',
-      'http://localhost/api/tasks/100',
-      'http://localhost/api/users/profile'
-    ];
+    await fc.assert(
+      fc.asyncProperty(fc.webUrl(), async (url) => {
+        const start = performance.now();
+        const req = new Request(url, { method: 'GET' });
+        
+        const res = await wrappedHandler(req);
+        const end = performance.now();
+        const duration = end - start;
 
-    for (const url of urls) {
-      const start = performance.now();
-      const req = new Request(url, { method: 'GET' });
-      
-      const res = await wrappedHandler(req);
-      const end = performance.now();
-      const duration = end - start;
-
-      expect(res.status).toBe(200);
-      expect(duration).toBeLessThan(300); // Navigation < 300ms
-    }
+        expect(res.status).toBe(200);
+        expect(duration).toBeLessThan(300); // Property 36: < 300ms
+      }),
+      { numRuns: 20 }
+    );
   });
 
   it('Property 38: Cached Data Responds Within 50ms', async () => {
     const mockHandler = async () => {
-      // Significant delay for the first call (150ms)
+      // Significant delay for the first call
       await new Promise(resolve => setTimeout(resolve, 150));
       return new Response(JSON.stringify({ data: 'cached' }), {
         status: 200,
@@ -53,22 +49,25 @@ describe('Performance Tests', () => {
     const cacheMiddleware = responseCache(60000); // 1 min TTL
     const wrappedHandler = applyMiddlewares(cacheMiddleware(mockHandler));
 
-    const testUrl = 'http://localhost/api/projects/cache-test';
+    const testUrl = 'http://localhost/api/projects/123';
     
     // First call: Warm up the cache
     await wrappedHandler(new Request(testUrl, { method: 'GET' }));
 
-    // Subsequent calls (10 iterations) should be blazing fast
-    for (let i = 0; i < 10; i++) {
-      const start = performance.now();
-      const req = new Request(testUrl, { method: 'GET' });
-      
-      const res = await wrappedHandler(req);
-      const end = performance.now();
-      const duration = end - start;
+    // Subsequent calls should be blazing fast
+    await fc.assert(
+      fc.asyncProperty(fc.constant(testUrl), async (url) => {
+        const start = performance.now();
+        const req = new Request(url, { method: 'GET' });
+        
+        const res = await wrappedHandler(req);
+        const end = performance.now();
+        const duration = end - start;
 
-      expect(res.status).toBe(200);
-      expect(duration).toBeLessThan(50); // Cached response < 50ms
-    }
+        expect(res.status).toBe(200);
+        expect(duration).toBeLessThan(50); // Property 38: < 50ms
+      }),
+      { numRuns: 50 }
+    );
   });
 });

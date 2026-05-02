@@ -85,6 +85,9 @@ importers:
       '@workspace/vitest-config':
         specifier: workspace:*
         version: link:../../packages/vitest-config
+      fast-check:
+        specifier: 'catalog:'
+        version: 4.7.0
       vitest:
         specifier: catalog:vitest4
         version: 4.0.17(@types/node@22.15.3)(@vitest/ui@4.0.17)(jiti@2.6.1)(jsdom@29.1.1)(lightningcss@1.32.0)(yaml@2.8.3)

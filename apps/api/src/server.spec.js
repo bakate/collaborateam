@@ -73,11 +73,14 @@ describe('Backend Server Unit Tests', () => {
       sql.mockResolvedValueOnce([]); // Users
       sql.mockResolvedValueOnce([]); // Projects
       sql.mockResolvedValueOnce([]); // Tasks
+      sql.mockResolvedValueOnce([]); // Index projects_owner_id
+      sql.mockResolvedValueOnce([]); // Index tasks_project_id
+      sql.mockResolvedValueOnce([]); // Index tasks_status
       
       const result = await runMigrations();
       
       expect(result.ok).toBe(true);
-      expect(sql).toHaveBeenCalledTimes(3);
+      expect(sql).toHaveBeenCalledTimes(6);
       expect(logger.info).toHaveBeenCalledWith('Migrations completed successfully');
     });
 
