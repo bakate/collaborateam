@@ -20,6 +20,7 @@ export class ProjectListComponent extends Component {
       loading: false,
       error: null,
       mineOnly: false,
+      confirmingDeleteId: null,
     };
   }
 
@@ -130,21 +131,95 @@ export class ProjectListComponent extends Component {
     descEl.className = 'project-card__description';
     descEl.textContent = project.description || '';
 
+    const actions = document.createElement('div');
+    actions.className = 'project-card__actions';
+
     const viewBtn = createButton({
       id: `view-project-${project.id}`,
-      label: 'View project',
+      label: 'View',
       variant: 'ghost',
+      size: 'sm',
     });
     viewBtn.addEventListener('click', () => {
       if (this.props.router) this.props.router.navigate(`/projects/${project.id}`);
       this.emit('project:select', { projectId: project.id });
     });
+    actions.appendChild(viewBtn);
+
+    // Edit/Delete only for owner
+    const currentUserId = authStore.user?.id;
+    if (project.ownerId === currentUserId) {
+      if (this.state.confirmingDeleteId === project.id) {
+        const confirmMsg = document.createElement('span');
+        confirmMsg.className = 'project-card__confirm-msg';
+        confirmMsg.textContent = 'Are you sure?';
+        actions.appendChild(confirmMsg);
+
+        const confirmBtn = createButton({
+          id: `confirm-delete-${project.id}`,
+          label: 'Confirm',
+          variant: 'danger',
+          size: 'sm',
+        });
+        confirmBtn.addEventListener('click', () => this._handleDelete(project.id));
+
+        const cancelBtn = createButton({
+          id: `cancel-delete-${project.id}`,
+          label: 'Cancel',
+          variant: 'ghost',
+          size: 'sm',
+        });
+        cancelBtn.addEventListener('click', () => this.setState({ confirmingDeleteId: null }));
+
+        actions.appendChild(confirmBtn);
+        actions.appendChild(cancelBtn);
+      } else {
+        const editBtn = createButton({
+          id: `edit-project-${project.id}`,
+          label: 'Edit',
+          variant: 'ghost',
+          size: 'sm',
+        });
+        editBtn.addEventListener('click', () => {
+          if (this.props.router) this.props.router.navigate(`/projects/${project.id}/edit`);
+        });
+
+        const deleteBtn = createButton({
+          id: `delete-project-${project.id}`,
+          label: 'Delete',
+          variant: 'danger',
+          size: 'sm',
+        });
+        deleteBtn.addEventListener('click', () => this.setState({ confirmingDeleteId: project.id }));
+
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+      }
+    }
 
     item.appendChild(nameEl);
     item.appendChild(descEl);
-    item.appendChild(viewBtn);
+    item.appendChild(actions);
 
     return item;
+  }
+
+  async _handleDelete(projectId) {
+    try {
+      const response = await apiClient.delete(`/projects/${projectId}`);
+      if (response.ok) {
+        toast.success('Project deleted');
+        this.setState({
+          projects: this.state.projects.filter(p => p.id !== projectId),
+          confirmingDeleteId: null
+        });
+      } else {
+        throw new Error('Failed to delete project');
+      }
+    } catch (err) {
+      toast.error(err.message);
+      this.setState({ confirmingDeleteId: null });
+    }
   }
 
   async _fetchProjects() {

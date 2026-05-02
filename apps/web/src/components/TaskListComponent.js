@@ -45,6 +45,7 @@ export class TaskListComponent extends Component {
       highlightedId: null,
       search: "",
       status: "all",
+      confirmingDeleteId: null,
       view: localStorage.getItem("taskView") || "list",
     };
   }
@@ -422,31 +423,70 @@ export class TaskListComponent extends Component {
       const actions = document.createElement("div");
       actions.className = "task-card__actions";
 
-      const editBtn = createButton({
-        id: `edit-task-${task.id}`,
-        label: "Edit",
-        variant: "ghost",
-        size: "sm",
-      });
-      editBtn.addEventListener("click", () => {
-        if (this.props.router) {
-          this.props.router.navigate(
-            `/projects/${this.props.projectId}/tasks/${task.id}/edit`,
-          );
-        }
-        this.emit("task:edit", { taskId: task.id });
-      });
+      if (this.state.confirmingDeleteId === task.id) {
+        // Confirmation mode
+        const confirmMsg = document.createElement("span");
+        confirmMsg.className = "task-card__confirm-msg";
+        confirmMsg.textContent = "Are you sure?";
+        actions.appendChild(confirmMsg);
 
-      const deleteBtn = createButton({
-        id: `delete-task-${task.id}`,
-        label: "Delete",
-        variant: "danger",
-        size: "sm",
-      });
-      deleteBtn.addEventListener("click", () => this._handleDelete(task.id));
+        const confirmBtn = createButton({
+          id: `confirm-delete-${task.id}`,
+          label: "Confirm",
+          variant: "danger",
+          size: "sm",
+        });
+        confirmBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._handleDelete(task.id);
+        });
 
-      actions.appendChild(editBtn);
-      actions.appendChild(deleteBtn);
+        const cancelBtn = createButton({
+          id: `cancel-delete-${task.id}`,
+          label: "Cancel",
+          variant: "ghost",
+          size: "sm",
+        });
+        cancelBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.setState({ confirmingDeleteId: null });
+        });
+
+        actions.appendChild(confirmBtn);
+        actions.appendChild(cancelBtn);
+      } else {
+        // Normal mode
+        const editBtn = createButton({
+          id: `edit-task-${task.id}`,
+          label: "Edit",
+          variant: "ghost",
+          size: "sm",
+        });
+        editBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (this.props.router) {
+            this.props.router.navigate(
+              `/projects/${this.props.projectId}/tasks/${task.id}/edit`,
+            );
+          }
+          this.emit("task:edit", { taskId: task.id });
+        });
+
+        const deleteBtn = createButton({
+          id: `delete-task-${task.id}`,
+          label: "Delete",
+          variant: "danger",
+          size: "sm",
+        });
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.setState({ confirmingDeleteId: task.id });
+        });
+
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+      }
+
       item.appendChild(actions);
     }
 

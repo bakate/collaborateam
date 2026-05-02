@@ -595,3 +595,34 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Task Card Confirmation */
+.task-card__confirm-msg {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 600;
+  margin-right: auto;
+}
+
+.task-card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* Project Card Confirmation */
+.project-card__confirm-msg {
+  font-size: 0.75rem;
+  color: #ef4444;
+  font-weight: 600;
+  margin-right: auto;
+}
+
+.project-card__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--surface-border);
+}
