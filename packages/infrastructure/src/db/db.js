@@ -1,7 +1,7 @@
 import postgres from 'postgres';
 import { logger } from '../logger/logger.js';
 
-const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres@localhost:5432/collaborateam';
+const connectionString = process.env.DATABASE_URL || 'postgres://postgres:postgres_password@localhost:5432/collaborateam';
 
 // Singleton database instance
 export const sql = postgres(connectionString, {
