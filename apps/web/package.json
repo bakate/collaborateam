@@ -15,6 +15,7 @@
   "devDependencies": {
     "vitest": "catalog:vitest4",
     "eslint": "catalog:",
+    "@faker-js/faker": "catalog:",
     "@workspace/eslint-config": "workspace:*",
     "@workspace/vitest-config": "workspace:*"
   }
