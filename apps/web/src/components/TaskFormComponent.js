@@ -1,5 +1,6 @@
 import { Component } from '../core/Component.js';
 import { authStore } from '../core/AuthStore.js';
+import { createPageLayout } from '../core/PageLayout.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
@@ -75,19 +76,22 @@ export class TaskFormComponent extends Component {
   }
 
   render() {
-    const wrapper = document.createElement('section');
-    wrapper.className = 'task-form-page';
-    wrapper.id = 'task-form-section';
-
-    const title = document.createElement('h2');
-    title.className = 'task-form-page__title';
-    title.textContent = this.isEditMode ? 'Edit Task' : 'New Task';
-    wrapper.appendChild(title);
+    const { wrapper, container } = createPageLayout({
+      title: this.isEditMode ? 'Edit Task' : 'New Task',
+      showBack: true,
+      onBack: () => this.props.router?.navigate(`/projects/${this.props.projectId}`),
+      router: this.props.router,
+      pageClass: 'form-page'
+    });
 
     if (this.state.loading) {
-      wrapper.appendChild(createSpinner({ label: 'Loading task' }));
+      container.appendChild(createSpinner({ label: 'Loading task' }));
+      wrapper.appendChild(container);
       return wrapper;
     }
+
+    const formWrapper = document.createElement('div');
+    formWrapper.className = 'form-container';
 
     const titleField = createInput({
       id: 'task-title',
@@ -132,16 +136,21 @@ export class TaskFormComponent extends Component {
       if (submitBtn) submitBtn.disabled = true;
     }
 
-    wrapper.appendChild(form);
+    formWrapper.appendChild(form);
 
     const cancelBtn = document.createElement('button');
     cancelBtn.type = 'button';
     cancelBtn.id = 'task-form-cancel';
     cancelBtn.className = 'btn btn--ghost';
     cancelBtn.textContent = 'Cancel';
-    cancelBtn.addEventListener('click', () => this.emit('task:cancel'));
-    wrapper.appendChild(cancelBtn);
+    cancelBtn.addEventListener('click', () => {
+      this.props.router?.navigate(`/projects/${this.props.projectId}`);
+      this.emit('task:cancel');
+    });
+    formWrapper.appendChild(cancelBtn);
 
+    container.appendChild(formWrapper);
+    wrapper.appendChild(container);
     return wrapper;
   }
 

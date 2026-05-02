@@ -3,8 +3,11 @@ import '@workspace/ui/styles/base.css';
 import '@workspace/ui/styles/components.css';
 import './styles/app.css';
 
+import { wsManager } from './core/WebSocketManager.js';
 import { Router } from './core/Router.js';
 import { authStore } from './core/AuthStore.js';
+
+// Initialize WebSockets moved inside init()
 
 import { LoginComponent } from './components/LoginComponent.js';
 import { RegisterComponent } from './components/RegisterComponent.js';
@@ -32,6 +35,9 @@ const init = async () => {
   
   // Initialize Auth
   await authStore.init();
+
+  // Connect WebSockets ONLY after Auth is ready
+  wsManager.connect();
 
   const router = new Router(routes, appContainer);
   router.init();

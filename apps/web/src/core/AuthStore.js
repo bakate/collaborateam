@@ -4,7 +4,7 @@
 class AuthStore {
   constructor() {
     this._user = null;
-    this._accessToken = sessionStorage.getItem('accessToken');
+    this._accessToken = localStorage.getItem('accessToken');
     this._listeners = new Set();
   }
 
@@ -13,18 +13,27 @@ class AuthStore {
   get token() { return this._accessToken; }
 
   /**
-   * Initialize store with current session
+   * Initialize store with current session from localStorage
    */
   async init() {
     if (!this._accessToken) return false;
 
     try {
-      // Future: Call /api/auth/me to verify token and get user profile
-      // For now, we trust the token existence (MVP)
-      this._user = { email: 'user@example.com', name: 'User' }; 
-      this._notify();
-      return true;
-    } catch {
+      const response = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${this._accessToken}` }
+      });
+
+      if (response.ok) {
+        const { user } = await response.json();
+        this._user = user;
+        this._notify();
+        return true;
+      }
+      
+      this.logout();
+      return false;
+    } catch (err) {
+      console.error('[AuthStore] Init failed:', err);
       this.logout();
       return false;
     }
@@ -33,16 +42,16 @@ class AuthStore {
   login(user, accessToken, refreshToken) {
     this._user = user;
     this._accessToken = accessToken;
-    sessionStorage.setItem('accessToken', accessToken);
-    sessionStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
     this._notify();
   }
 
   logout() {
     this._user = null;
     this._accessToken = null;
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
     this._notify();
   }
 

@@ -1,5 +1,6 @@
 import { Component } from '../core/Component.js';
 import { authStore } from '../core/AuthStore.js';
+import { createPageLayout } from '../core/PageLayout.js';
 import { createButton, createSpinner } from '@workspace/ui/components/Button';
 
 const API_BASE = '/api';
@@ -26,41 +27,6 @@ export class ProjectListComponent extends Component {
   }
 
   render() {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'project-list-page';
-
-    // Header
-    const headerEl = document.createElement('header');
-    headerEl.className = 'app-header';
-    headerEl.innerHTML = `
-      <div class="container">
-        <a href="#/" class="app-header__logo">Collaborateam</a>
-        <div class="app-header__user">
-          <span class="user-email">${authStore.user?.email || ''}</span>
-          <button id="logout-btn" class="btn btn--ghost btn--sm">Logout</button>
-        </div>
-      </div>
-    `;
-    
-    headerEl.querySelector('#logout-btn').addEventListener('click', () => {
-      authStore.logout();
-      if (this.props.router) this.props.router.navigate('/login');
-    });
-
-    wrapper.appendChild(headerEl);
-
-    const container = document.createElement('main');
-    container.className = 'container project-list';
-
-    // Section Header
-    const sectionHeader = document.createElement('div');
-    sectionHeader.className = 'project-list__header';
-
-    const title = document.createElement('h1');
-    title.className = 'project-list__title';
-    title.textContent = 'Projects';
-    sectionHeader.appendChild(title);
-
     const actions = document.createElement('div');
     actions.className = 'project-list__actions';
 
@@ -93,8 +59,12 @@ export class ProjectListComponent extends Component {
     });
     actions.appendChild(createBtn);
 
-    sectionHeader.appendChild(actions);
-    container.appendChild(sectionHeader);
+    const { wrapper, container } = createPageLayout({
+      title: 'Projects',
+      actions,
+      router: this.props.router,
+      pageClass: 'project-list-page'
+    });
 
     // Loading
     if (this.state.loading) {
