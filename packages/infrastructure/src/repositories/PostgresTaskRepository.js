@@ -27,9 +27,9 @@ export const PostgresTaskRepository = Object.freeze({
     const rows = await sql`
       UPDATE tasks
       SET
-        title = COALESCE(${data.title}, title),
-        description = COALESCE(${data.description}, description),
-        status = COALESCE(${data.status}, status),
+        title = COALESCE(${data.title ?? null}, title),
+        description = COALESCE(${data.description ?? null}, description),
+        status = COALESCE(${data.status ?? null}, status),
         updated_at = NOW()
       WHERE id = ${id}
       RETURNING *

@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 3000;
 export const wsService = createBunWebSocketService();
 
 // Router placeholder
-const router = async (req) => {
+const router = async (req, server) => {
   const url = new URL(req.url);
 
   if (url.pathname === '/health') {
@@ -30,7 +30,7 @@ const router = async (req) => {
         status: 400, headers: { 'Content-Type': 'application/json' }
       });
     }
-    const upgraded = globalThis.Bun.server?.upgrade(req, { data: { userId } });
+    const upgraded = server.upgrade(req, { data: { userId } });
     if (!upgraded) {
       return new Response('WebSocket upgrade failed', { status: 500 });
     }

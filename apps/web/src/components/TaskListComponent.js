@@ -220,7 +220,9 @@ export class TaskListComponent extends Component {
     filterComp.on("filter:change", (filters) => {
       this.setState({ ...filters });
     });
-    container.appendChild(filterComp.mount());
+    
+    // mount() already handles appending to the container
+    filterComp.mount(container);
     
     container.appendChild(content);
     wrapper.appendChild(container);

@@ -22,7 +22,7 @@ const HELMET_HEADERS = {
  * Handles CORS, Helmet headers, Logging, and Global Error Catching.
  */
 export const applyMiddlewares = (handler) => {
-  return async (req) => {
+  return async (req, server) => {
     const url = new URL(req.url);
     const start = Date.now();
     
@@ -32,8 +32,8 @@ export const applyMiddlewares = (handler) => {
     }
 
     try {
-      // 2. Execute Handler
-      const response = await handler(req);
+      // 2. Execute Handler (Pass server for WS upgrade)
+      const response = await handler(req, server);
       
       // 3. Inject global headers (CORS + Helmet)
       const newHeaders = new Headers(response.headers);

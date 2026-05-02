@@ -73,17 +73,20 @@ export class Router {
     // Lazy Loading Support
     let ComponentClass = route.component;
     if (typeof ComponentClass === 'function' && !ComponentClass.prototype?.mount) {
-      // Show a sleek loading state
-      this.container.innerHTML = `
-        <div class="loading-screen" style="display:flex; justify-content:center; align-items:center; height:100vh;">
-          <div class="spinner"></div>
-        </div>
-      `;
+      const loaderTimeout = setTimeout(() => {
+        this.container.innerHTML = `
+          <div class="loading-screen">
+            <div class="spinner"></div>
+          </div>
+        `;
+      }, 200); // Only show loader if it takes > 200ms
+
       try {
         const module = await ComponentClass();
-        // Handle both 'export default' and 'export const'
+        clearTimeout(loaderTimeout);
         ComponentClass = module.default || Object.values(module)[0];
       } catch (err) {
+        clearTimeout(loaderTimeout);
         console.error('[Router] Failed to lazy-load component:', err);
         return this.navigate('/');
       }
