@@ -17,6 +17,8 @@ const HELMET_HEADERS = {
   'Referrer-Policy': 'no-referrer',
 };
 
+import { AppError, ErrorCode } from '../core/errors.js';
+
 /**
  * Global middleware wrapper for bun.serve requests.
  * Handles CORS, Helmet headers, Logging, and Global Error Catching.
@@ -57,20 +59,29 @@ export const applyMiddlewares = (handler) => {
       
     } catch (error) {
       // 4. Global Error Handler
+      const isAppError = error instanceof AppError;
+      const status = isAppError ? error.status : 500;
+      
       logger.error({ 
         err: error.message, 
         stack: error.stack,
+        code: isAppError ? error.code : ErrorCode.INTERNAL_ERROR,
         method: req.method, 
         url: url.pathname 
-      }, 'Unhandled Server Error');
+      }, isAppError ? `API Error: ${error.message}` : 'Unhandled Server Error');
 
-      const errorResponse = new Response(
-        JSON.stringify({
-          error: 'Internal Server Error',
-          message: process.env.NODE_ENV !== 'production' ? error.message : undefined
-        }),
+      const errorPayload = isAppError 
+        ? error.toJSON() 
+        : { 
+            error: 'Internal Server Error',
+            message: process.env.NODE_ENV !== 'production' ? error.message : undefined,
+            code: ErrorCode.INTERNAL_ERROR
+          };
+
+      return new Response(
+        JSON.stringify(errorPayload),
         { 
-          status: 500,
+          status,
           headers: {
             'Content-Type': 'application/json',
             ...CORS_HEADERS,
@@ -78,7 +89,6 @@ export const applyMiddlewares = (handler) => {
           }
         }
       );
-      return errorResponse;
     }
   };
 };

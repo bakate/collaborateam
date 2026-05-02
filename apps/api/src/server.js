@@ -18,7 +18,18 @@ const router = async (req, server) => {
   const url = new URL(req.url);
 
   if (url.pathname === '/health') {
-    return new Response(JSON.stringify({ status: 'ok' }), {
+    const isDbConnected = await checkConnection();
+    const status = isDbConnected ? 'ok' : 'degraded';
+    
+    return new Response(JSON.stringify({ 
+      status,
+      services: {
+        api: 'ok',
+        database: isDbConnected ? 'ok' : 'error'
+      },
+      timestamp: new Date().toISOString()
+    }), {
+      status: isDbConnected ? 200 : 503,
       headers: { 'Content-Type': 'application/json' }
     });
   }

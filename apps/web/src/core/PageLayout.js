@@ -1,5 +1,6 @@
 import { authStore } from './AuthStore.js';
 import { wsManager } from './WebSocketManager.js';
+import { WebSocketStatus } from '../components/WebSocketStatus.js';
 
 /**
  * PageLayout — Utility to create a consistent page structure with Header and Container.
@@ -15,40 +16,24 @@ export const createPageLayout = ({
   const wrapper = document.createElement('div');
   wrapper.className = `main-layout ${pageClass}`;
 
-  // 1. App Header
+// 1. App Header
   const headerEl = document.createElement('header');
   headerEl.className = 'app-header';
-  
-  const statusClass = wsManager.socket?.readyState === WebSocket.OPEN ? 'ws-status-indicator--connected' : 'ws-status-indicator--disconnected';
-  const statusText = wsManager.socket?.readyState === WebSocket.OPEN ? 'Live' : 'Offline';
 
-  headerEl.innerHTML = `
-    <div class="container">
-      <a href="#/" class="app-header__logo">Collaborateam</a>
-      <div class="app-header__user">
-        <div id="ws-status" class="ws-status-indicator ${statusClass}">
-          <span class="ws-status-dot"></span>
-          <span class="ws-status-text">${statusText}</span>
-        </div>
-        <span class="user-email">${authStore.user?.email || ''}</span>
-        <button id="logout-btn" class="btn btn--ghost btn--sm">Logout</button>
-      </div>
+headerEl.innerHTML = `
+  <div class="container">
+    <a href="#/" class="app-header__logo">Collaborateam</a>
+    <div class="app-header__user">
+      <div id="ws-status-container"></div>
+      <span class="user-email">${authStore.user?.email || ''}</span>
+      <button id="logout-btn" class="btn btn--ghost btn--sm">Logout</button>
     </div>
-  `;
-  
-  // Listen for WS status changes to update the UI in real-time
-  wsManager.subscribe(({ type, data }) => {
-    if (type === 'ws:status') {
-      const indicator = headerEl.querySelector('#ws-status');
-      const text = headerEl.querySelector('.ws-status-text');
-      if (!indicator || !text) return;
+  </div>
+`;
 
-      indicator.className = `ws-status-indicator ws-status-indicator--${data}`;
-      text.textContent = data === 'connected' ? 'Live' : 
-                         data === 'connecting' ? 'Connecting...' : 
-                         data === 'disconnected' ? 'Offline' : 'Error';
-    }
-  });
+// Mount WebSocket Status Component
+const wsStatus = new WebSocketStatus();
+wsStatus.mount(headerEl.querySelector('#ws-status-container'));
 
   headerEl.querySelector('#logout-btn').addEventListener('click', () => {
     authStore.logout();
