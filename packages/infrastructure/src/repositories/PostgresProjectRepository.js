@@ -58,8 +58,8 @@ export const PostgresProjectRepository = Object.freeze({
     const rows = await conn`
       UPDATE projects
       SET
-        name = COALESCE(${data.name}, name),
-        description = COALESCE(${data.description}, description),
+        name = COALESCE(${data.name ?? null}, name),
+        description = COALESCE(${data.description ?? null}, description),
         updated_at = NOW()
       WHERE id = ${id}
       RETURNING *
