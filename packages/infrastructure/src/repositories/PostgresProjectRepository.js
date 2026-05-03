@@ -6,15 +6,41 @@ import { sql } from '../db/db.js';
  */
 export const PostgresProjectRepository = Object.freeze({
   async findAll() {
-    return sql`SELECT * FROM projects ORDER BY created_at DESC`;
+    return sql`
+      SELECT 
+        p.*, 
+        u.username as "ownerName",
+        (SELECT COUNT(*) FROM tasks t WHERE t.project_id = p.id) as "taskCount"
+      FROM projects p
+      JOIN users u ON p.owner_id = u.id
+      ORDER BY p.created_at DESC
+    `;
   },
 
   async findByOwnerId({ ownerId }) {
-    return sql`SELECT * FROM projects WHERE owner_id = ${ownerId} ORDER BY created_at DESC`;
+    return sql`
+      SELECT 
+        p.*, 
+        split_part(u.email, '@', 1) as "ownerName",
+        (SELECT COUNT(*) FROM tasks t WHERE t.project_id = p.id) as "taskCount"
+      FROM projects p
+      JOIN users u ON p.owner_id = u.id
+      WHERE p.owner_id = ${ownerId} 
+      ORDER BY p.created_at DESC
+    `;
   },
 
   async findById({ id }) {
-    const rows = await sql`SELECT * FROM projects WHERE id = ${id} LIMIT 1`;
+    const rows = await sql`
+      SELECT 
+        p.*, 
+        split_part(u.email, '@', 1) as "ownerName",
+        (SELECT COUNT(*) FROM tasks t WHERE t.project_id = p.id) as "taskCount"
+      FROM projects p
+      JOIN users u ON p.owner_id = u.id
+      WHERE p.id = ${id} 
+      LIMIT 1
+    `;
     return rows[0] || null;
   },
 

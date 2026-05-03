@@ -2,6 +2,7 @@ import { Component } from "../core/Component.js";
 import { authStore } from "../core/AuthStore.js";
 import { createPageLayout } from "../core/PageLayout.js";
 import { createButton, createSpinner } from "@workspace/ui/components/Button";
+import { createModal } from "@workspace/ui/components/Modal";
 import { Icons } from "@workspace/ui/components/Icons";
 import { apiClient } from "../core/APIClient.js";
 import { toast } from "../core/ToastManager.js";
@@ -32,37 +33,106 @@ export class ProjectListComponent extends Component {
   _setupEventListeners() {
     if (!this.container) return;
 
+    // Global click listener for the component
     this.container.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-action]");
-      if (!btn) return;
+      // 1. Handle actions (buttons with data-action)
+      const actionBtn = e.target.closest("[data-action]");
+      if (actionBtn) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent card click
+        this._handleAction(actionBtn.dataset);
+        return;
+      }
 
-      e.preventDefault();
-      e.stopPropagation();
+      // 2. Handle dropdown toggle
+      const menuTrigger = e.target.closest(".project-card__menu-trigger");
+      if (menuTrigger) {
+        e.preventDefault();
+        e.stopPropagation();
+        this._toggleDropdown(menuTrigger);
+        return;
+      }
 
-      const { action, projectId } = btn.dataset;
-
-      switch (action) {
-        case "view":
-        case "select":
-          if (this.props.router)
-            this.props.router.navigate(`/projects/${projectId}`);
-          this.emit("project:select", { projectId });
-          break;
-        case "edit":
-          if (this.props.router)
-            this.props.router.navigate(`/projects/${projectId}/edit`);
-          break;
-        case "delete-init":
-          this.setState({ confirmingDeleteId: projectId });
-          break;
-        case "confirm-delete":
-          this._handleDelete(projectId);
-          break;
-        case "cancel-delete":
-          this.setState({ confirmingDeleteId: null });
-          break;
+      // 3. Handle card click (Navigate to project)
+      const card = e.target.closest(".project-card");
+      if (card) {
+        const { projectId } = card.dataset;
+        if (this.props.router)
+          this.props.router.navigate(`/projects/${projectId}`);
+        this.emit("project:select", { projectId });
       }
     });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener("click", () => {
+      this.container
+        .querySelectorAll(".dropdown--open")
+        .forEach((d) => d.classList.remove("dropdown--open"));
+    });
+  }
+
+  _toggleDropdown(trigger) {
+    const dropdown = trigger.closest(".dropdown");
+    const isOpen = dropdown.classList.contains("dropdown--open");
+
+    // Close all other dropdowns
+    this.container
+      .querySelectorAll(".dropdown--open")
+      .forEach((d) => d.classList.remove("dropdown--open"));
+
+    if (!isOpen) {
+      dropdown.classList.add("dropdown--open");
+    }
+  }
+
+  _handleAction({ action, projectId }) {
+    switch (action) {
+      case "edit":
+        if (this.props.router)
+          this.props.router.navigate(`/projects/${projectId}/edit`);
+        break;
+      case "delete-init":
+        this._showDeleteConfirmation(projectId);
+        break;
+    }
+  }
+
+  _showDeleteConfirmation(projectId) {
+    const project = this.state.projects.find((p) => p.id === projectId);
+    if (!project) return;
+
+    const content = document.createElement("div");
+    content.className = "confirm-modal-content";
+    content.innerHTML = `
+      <p>Are you sure you want to delete <strong>${project.name}</strong>?</p>
+      <p class="text-muted text-sm">This action is permanent and will delete all associated tasks.</p>
+      <div class="form-actions">
+        <button id="confirm-delete-btn" class="btn btn--danger">Delete Project</button>
+        <button id="cancel-delete-btn" class="btn btn--ghost">Cancel</button>
+      </div>
+    `;
+
+    const modal = createModal({
+      id: "delete-project-modal",
+      title: "Delete Project",
+      content,
+      onClose: () => {
+        modal.element.remove();
+      },
+    });
+
+    content.querySelector("#confirm-delete-btn").addEventListener("click", () => {
+      this._handleDelete(projectId);
+      modal.close();
+    });
+
+    content.querySelector("#cancel-delete-btn").addEventListener("click", () => {
+      modal.close();
+    });
+
+    // Important: we need to append the modal element to the document
+    document.body.appendChild(modal.element);
+    modal.open();
   }
 
   render() {
@@ -164,9 +234,54 @@ export class ProjectListComponent extends Component {
     item.className = "project-card";
     item.dataset.projectId = project.id;
 
+    // Header: Title + Meatball Menu
+    const header = document.createElement("div");
+    header.className = "project-card__header";
+
     const nameEl = document.createElement("h2");
     nameEl.className = "project-card__name";
     nameEl.innerHTML = `${Icons.folder} <span>${project.name}</span>`;
+    header.appendChild(nameEl);
+
+    // Dropdown for owner actions
+    const currentUserId = authStore.user?.id;
+    if (project.ownerId === currentUserId) {
+      const dropdown = document.createElement("div");
+      dropdown.className = "dropdown";
+
+      const trigger = document.createElement("button");
+      trigger.className = "project-card__menu-trigger";
+      trigger.innerHTML = Icons.moreVertical;
+      trigger.title = "Project actions";
+      dropdown.appendChild(trigger);
+
+      const menu = document.createElement("div");
+      menu.className = "dropdown-menu";
+
+      // Edit action
+      const editItem = document.createElement("button");
+      editItem.className = "dropdown-item";
+      editItem.dataset.action = "edit";
+      editItem.dataset.projectId = project.id;
+      editItem.innerHTML = `${Icons.edit} Edit`;
+      menu.appendChild(editItem);
+
+      // Divider
+      const divider = document.createElement("div");
+      divider.className = "dropdown-divider";
+      menu.appendChild(divider);
+
+      // Delete action
+      const deleteItem = document.createElement("button");
+      deleteItem.className = "dropdown-item dropdown-item--danger";
+      deleteItem.dataset.action = "delete-init";
+      deleteItem.dataset.projectId = project.id;
+      deleteItem.innerHTML = `${Icons.trash} Delete`;
+      menu.appendChild(deleteItem);
+
+      dropdown.appendChild(menu);
+      header.appendChild(dropdown);
+    }
 
     const descEl = document.createElement("p");
     descEl.className = "project-card__description";
@@ -178,88 +293,21 @@ export class ProjectListComponent extends Component {
 
     const tasksStat = document.createElement("div");
     tasksStat.className = "project-card__stat";
-    tasksStat.innerHTML = `${Icons.tasks} <span>${project.taskCount || 0} tasks</span>`;
+    tasksStat.innerHTML = `${Icons.tasks} <span>${project.taskCount ?? 0}</span>`;
 
+    const isOwner = project.ownerId === currentUserId;
     const ownerInfo = document.createElement("div");
     ownerInfo.className = "project-card__owner";
-    ownerInfo.innerHTML = `${Icons.user} <span>${project.ownerName || "Owner"}</span>`;
+    ownerInfo.innerHTML = isOwner
+      ? `${Icons.user} <span class="badge badge--you">You</span>`
+      : `${Icons.user} <span>${project.ownerName || "Unknown"}</span>`;
 
     meta.appendChild(tasksStat);
     meta.appendChild(ownerInfo);
 
-    const actions = document.createElement("div");
-    actions.className = "project-card__actions";
-
-    const viewBtn = createButton({
-      id: `view-project-${project.id}`,
-      label: "View",
-      variant: "primary",
-      size: "sm",
-      icon: Icons.eye,
-    });
-    viewBtn.dataset.action = "view";
-    viewBtn.dataset.projectId = project.id;
-    actions.appendChild(viewBtn);
-
-    // Edit/Delete only for owner
-    const currentUserId = authStore.user?.id;
-    if (project.ownerId === currentUserId) {
-      if (this.state.confirmingDeleteId === project.id) {
-        const confirmMsg = document.createElement("span");
-        confirmMsg.className = "project-card__confirm-msg";
-        confirmMsg.textContent = "Are you sure?";
-        actions.appendChild(confirmMsg);
-
-        const confirmBtn = createButton({
-          id: `confirm-delete-${project.id}`,
-          label: "Confirm",
-          variant: "danger",
-          size: "sm",
-        });
-        confirmBtn.dataset.action = "confirm-delete";
-        confirmBtn.dataset.projectId = project.id;
-
-        const cancelBtn = createButton({
-          id: `cancel-delete-${project.id}`,
-          label: "Cancel",
-          variant: "ghost",
-          size: "sm",
-        });
-        cancelBtn.dataset.action = "cancel-delete";
-        cancelBtn.dataset.projectId = project.id;
-
-        actions.appendChild(confirmBtn);
-        actions.appendChild(cancelBtn);
-      } else {
-        const editBtn = createButton({
-          id: `edit-project-${project.id}`,
-          label: "Edit",
-          variant: "ghost",
-          size: "sm",
-          icon: Icons.edit,
-        });
-        editBtn.dataset.action = "edit";
-        editBtn.dataset.projectId = project.id;
-
-        const deleteBtn = createButton({
-          id: `delete-project-${project.id}`,
-          label: "Delete",
-          variant: "ghost",
-          size: "sm",
-          icon: Icons.trash,
-        });
-        deleteBtn.dataset.action = "delete-init";
-        deleteBtn.dataset.projectId = project.id;
-
-        actions.appendChild(editBtn);
-        actions.appendChild(deleteBtn);
-      }
-    }
-
-    item.appendChild(nameEl);
+    item.appendChild(header);
     item.appendChild(descEl);
     item.appendChild(meta);
-    item.appendChild(actions);
 
     return item;
   }

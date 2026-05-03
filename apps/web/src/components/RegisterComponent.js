@@ -60,12 +60,12 @@ export class RegisterComponent extends Component {
     title.textContent = "Create your account";
     wrapper.appendChild(title);
 
-    const nameField = createInput({
-      id: "register-name",
-      name: "name",
+    const usernameField = createInput({
+      id: "register-username",
+      name: "username",
       type: "text",
-      label: "Full name",
-      placeholder: "Jane Doe",
+      label: "Username",
+      placeholder: "janesmith",
       required: true,
     });
 
@@ -89,7 +89,7 @@ export class RegisterComponent extends Component {
 
     const form = createForm({
       id: "register-form",
-      fields: [nameField, emailField, passwordField],
+      fields: [usernameField, emailField, passwordField],
       submitLabel: this.state.loading ? "Creating account…" : "Sign up",
       onSubmit: (e, formEl) => this._handleSubmit(formEl),
     });
@@ -125,15 +125,23 @@ export class RegisterComponent extends Component {
     }
     clearFormError(form);
 
-    const name = form.querySelector("#register-name")?.value?.trim();
+    const username = form.querySelector("#register-username")?.value?.trim();
     const email = form.querySelector("#register-email")?.value?.trim();
     const password = form.querySelector("#register-password")?.value;
 
     // Client-side validation — fail fast, field-specific errors
-    if (!name) {
+    if (!username) {
       showFieldError(
-        form.querySelector(".field:has(#register-name)"),
-        "Full name is required",
+        form.querySelector(".field:has(#register-username)"),
+        "Username is required",
+      );
+      return;
+    }
+
+    if (username.length < 3) {
+      showFieldError(
+        form.querySelector(".field:has(#register-username)"),
+        "Username must be at least 3 characters",
       );
       return;
     }
@@ -170,7 +178,7 @@ export class RegisterComponent extends Component {
       const response = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ username, email, password }),
       });
 
       const data = await response.json();

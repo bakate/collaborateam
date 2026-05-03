@@ -118,12 +118,23 @@ export class TaskFormComponent extends Component {
       value: this.state.task?.status ?? 'todo',
     });
 
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.id = 'task-form-cancel';
+    cancelBtn.className = 'btn btn--ghost';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', () => {
+      this.props.router?.navigate(`/projects/${this.props.projectId}`);
+      this.emit('task:cancel');
+    });
+
     const form = createForm({
       id: 'task-form',
       fields: [titleField, descField, statusSelect],
       submitLabel: this.state.submitting
         ? (this.isEditMode ? 'Saving…' : 'Creating…')
         : (this.isEditMode ? 'Save changes' : 'Create task'),
+      actions: [cancelBtn],
       onSubmit: (e, formEl) => this._handleSubmit(formEl),
     });
 
@@ -137,17 +148,6 @@ export class TaskFormComponent extends Component {
     }
 
     formWrapper.appendChild(form);
-
-    const cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.id = 'task-form-cancel';
-    cancelBtn.className = 'btn btn--ghost';
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.addEventListener('click', () => {
-      this.props.router?.navigate(`/projects/${this.props.projectId}`);
-      this.emit('task:cancel');
-    });
-    formWrapper.appendChild(cancelBtn);
 
     container.appendChild(formWrapper);
     wrapper.appendChild(container);

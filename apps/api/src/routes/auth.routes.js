@@ -15,6 +15,7 @@ const authService = createAuthService({
 });
 
 const registerSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters").max(50),
   email: z.string().email(),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
@@ -103,7 +104,7 @@ export const handleAuthRoutes = async (req, url) => {
     const user = await PostgresUserRepository.findById({ id: req.user.userId });
     if (!user) return json({ error: "User not found" }, 404);
 
-    return json({ user: { id: user.id, email: user.email } });
+    return json({ user: { id: user.id, username: user.username, email: user.email } });
   }
 
   // POST /api/auth/logout

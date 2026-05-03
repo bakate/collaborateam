@@ -11,6 +11,7 @@ export const createForm = ({
   fields = [],
   submitLabel = 'Submit',
   onSubmit,
+  actions = [],
 } = {}) => {
   const form = document.createElement('form');
   form.id = id;
@@ -21,13 +22,22 @@ export const createForm = ({
     form.appendChild(field);
   }
 
+  const actionsContainer = document.createElement('div');
+  actionsContainer.className = 'form-actions';
+
   const submitBtn = createButton({
     id: `${id}-submit`,
     label: submitLabel,
     type: 'submit',
     variant: 'primary',
   });
-  form.appendChild(submitBtn);
+  actionsContainer.appendChild(submitBtn);
+
+  for (const action of actions) {
+    actionsContainer.appendChild(action);
+  }
+
+  form.appendChild(actionsContainer);
 
   if (typeof onSubmit === 'function') {
     form.addEventListener('submit', (e) => {

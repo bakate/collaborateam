@@ -12,21 +12,33 @@ export const createAuthService = ({
   return Object.freeze({
     /**
      * Registers a new user.
-     * @param {Object} input - { email, password }
+     * @param {Object} input - { username, email, password }
      */
-    async register({ email, password }) {
-      const existingUser = await userRepository.findByEmail({ email });
-      if (existingUser) {
-        return { ok: false, error: new Error('User already exists') };
+    async register({ username, email, password }) {
+      const [existingEmail, existingUsername] = await Promise.all([
+        userRepository.findByEmail({ email }),
+        userRepository.findByUsername({ username }),
+      ]);
+
+      if (existingEmail) {
+        return { ok: false, error: new Error("Email already exists") };
+      }
+
+      if (existingUsername) {
+        return { ok: false, error: new Error("Username already taken") };
       }
 
       const passwordHash = await passwordHasher.hash({ password });
-      
-      const user = await userRepository.create({ email, passwordHash });
-      
+
+      const user = await userRepository.create({
+        username,
+        email,
+        passwordHash,
+      });
+
       const accessToken = await tokenService.signAccess({ userId: user.id });
       const refreshToken = await tokenService.signRefresh({ userId: user.id });
-      
+
       return { ok: true, value: { user, accessToken, refreshToken } };
     },
 

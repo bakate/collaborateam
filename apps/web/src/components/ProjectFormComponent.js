@@ -77,12 +77,23 @@ export class ProjectFormComponent extends Component {
       value: this.state.project?.description ?? '',
     });
 
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.id = 'project-form-cancel';
+    cancelBtn.className = 'btn btn--ghost';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.addEventListener('click', () => {
+      this.props.router?.navigate('/');
+      this.emit('project:cancel');
+    });
+
     const form = createForm({
       id: 'project-form',
       fields: [nameField, descField],
       submitLabel: this.state.submitting
         ? (this.isEditMode ? 'Saving…' : 'Creating…')
         : (this.isEditMode ? 'Save changes' : 'Create project'),
+      actions: [cancelBtn],
       onSubmit: (e, formEl) => this._handleSubmit(formEl),
     });
 
@@ -96,17 +107,6 @@ export class ProjectFormComponent extends Component {
     }
 
     formWrapper.appendChild(form);
-
-    const cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.id = 'project-form-cancel';
-    cancelBtn.className = 'btn btn--ghost';
-    cancelBtn.textContent = 'Cancel';
-    cancelBtn.addEventListener('click', () => {
-      this.props.router?.navigate('/');
-      this.emit('project:cancel');
-    });
-    formWrapper.appendChild(cancelBtn);
 
     container.appendChild(formWrapper);
     wrapper.appendChild(container);

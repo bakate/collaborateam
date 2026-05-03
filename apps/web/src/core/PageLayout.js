@@ -19,16 +19,18 @@ export const createPageLayout = ({
   const headerEl = document.createElement('header');
   headerEl.className = 'app-header';
 
-headerEl.innerHTML = `
-  <div class="container">
-    <a href="#/" class="app-header__logo">Collaborateam</a>
-    <div class="app-header__user">
-      <div id="ws-status-container"></div>
-      <span class="user-email">${authStore.user?.email || ''}</span>
-      <button id="logout-btn" class="btn btn--ghost btn--sm">Logout</button>
-    </div>
-  </div>
-`;
+    const userName = authStore.user?.username || 'User';
+
+    headerEl.innerHTML = `
+      <div class="container">
+        <a href="#/" class="app-header__logo">Collaborateam</a>
+        <div class="app-header__user">
+          <div id="ws-status-container"></div>
+          <span class="user-name">${userName}</span>
+          <button id="logout-btn" class="btn btn--ghost btn--sm">Logout</button>
+        </div>
+      </div>
+    `;
 
 // Mount WebSocket Status Component
 const wsStatus = new WebSocketStatus();

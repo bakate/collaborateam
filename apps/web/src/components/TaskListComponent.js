@@ -6,6 +6,7 @@ import { apiClient } from "../core/APIClient.js";
 import { toast } from "../core/ToastManager.js";
 import { TaskFilterComponent } from "./TaskFilterComponent.js";
 import { createButton, createSpinner } from "@workspace/ui/components/Button";
+import { createModal } from "@workspace/ui/components/Modal";
 import { Icons } from "@workspace/ui/components/Icons";
 
 /**
@@ -181,6 +182,42 @@ export class TaskListComponent extends Component {
     actions.appendChild(toggles);
 
     if (this.canEdit) {
+      // Edit Project
+      const editProjBtn = createButton({
+        id: "edit-project-btn",
+        label: "Edit",
+        variant: "ghost",
+        size: "sm",
+        icon: Icons.edit,
+      });
+      editProjBtn.addEventListener("click", () => {
+        if (this.props.router) {
+          this.props.router.navigate(`/projects/${this.props.projectId}/edit`);
+        }
+      });
+      actions.appendChild(editProjBtn);
+
+      // Delete Project
+      const deleteProjBtn = createButton({
+        id: "delete-project-btn",
+        label: "Delete",
+        variant: "ghost",
+        size: "sm",
+        icon: Icons.trash,
+      });
+      deleteProjBtn.addEventListener("click", () => {
+        this._showDeleteConfirmation();
+      });
+      actions.appendChild(deleteProjBtn);
+
+      // Divider or spacer
+      const spacer = document.createElement("div");
+      spacer.style.width = "1px";
+      spacer.style.height = "24px";
+      spacer.style.background = "var(--surface-border)";
+      spacer.style.margin = "0 var(--space-sm)";
+      actions.appendChild(spacer);
+
       const addBtn = createButton({
         id: "add-task-btn",
         label: "Add Task",
@@ -603,6 +640,66 @@ export class TaskListComponent extends Component {
       this.setState({ loading: false, tasks: data.tasks });
     } catch (err) {
       this.setState({ loading: false, error: err.message });
+      toast.error(err.message);
+    }
+  }
+
+  _showDeleteConfirmation() {
+    if (!this.state.project) return;
+
+    const content = document.createElement("div");
+    content.className = "confirm-modal-content";
+    content.innerHTML = `
+      <p>Are you sure you want to delete <strong>${this.state.project.name}</strong>?</p>
+      <p class="text-muted text-sm">This action is permanent and will delete all associated tasks.</p>
+      <div class="form-actions">
+        <button id="confirm-project-delete-btn" class="btn btn--danger">Delete Project</button>
+        <button id="cancel-project-delete-btn" class="btn btn--ghost">Cancel</button>
+      </div>
+    `;
+
+    const modal = createModal({
+      id: "delete-project-modal-task",
+      title: "Delete Project",
+      content,
+      onClose: () => {
+        modal.element.remove();
+      },
+    });
+
+    content
+      .querySelector("#confirm-project-delete-btn")
+      .addEventListener("click", () => {
+        this._handleDeleteProject();
+        modal.close();
+      });
+
+    content
+      .querySelector("#cancel-project-delete-btn")
+      .addEventListener("click", () => {
+        modal.close();
+      });
+
+    document.body.appendChild(modal.element);
+    modal.open();
+  }
+
+  async _handleDeleteProject() {
+    try {
+      const response = await apiClient.delete(
+        `/projects/${this.props.projectId}`,
+      );
+
+      if (response.ok) {
+        toast.success("Project deleted");
+        if (this.props.router) {
+          this.props.router.navigate("/");
+        }
+      } else {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to delete project");
+      }
+    } catch (err) {
       toast.error(err.message);
     }
   }
