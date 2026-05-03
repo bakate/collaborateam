@@ -3,6 +3,7 @@ import { authStore } from '../core/AuthStore.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
+import { createAuthCard } from '../core/AuthCard.js';
 
 const API_BASE = '/api';
 
@@ -17,15 +18,12 @@ export class LoginComponent extends Component {
   }
 
   render() {
-    const wrapper = document.createElement('section');
-    wrapper.className = 'auth-card';
-    wrapper.id = 'login-section';
-    wrapper.setAttribute('aria-label', 'Login form');
-
-    const title = document.createElement('h1');
-    title.className = 'auth-card__title';
-    title.textContent = 'Welcome back';
-    wrapper.appendChild(title);
+    const { wrapper } = createAuthCard({
+      id: 'login-section',
+      ariaLabel: 'Login form',
+      title: 'Welcome back',
+      footerHtml: `Don't have an account? <a href="#/register" id="go-to-register">Sign up</a>`,
+    });
 
     const emailField = createInput({
       id: 'login-email',
@@ -67,11 +65,7 @@ export class LoginComponent extends Component {
     }
 
     wrapper.appendChild(form);
-
-    const registerLink = document.createElement('p');
-    registerLink.className = 'auth-card__footer';
-    registerLink.innerHTML = `Don't have an account? <a href="#/register" id="go-to-register">Sign up</a>`;
-    wrapper.appendChild(registerLink);
+    wrapper.appendFooter();
 
     return wrapper;
   }

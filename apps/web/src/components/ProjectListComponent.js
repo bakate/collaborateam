@@ -2,7 +2,7 @@ import { Component } from "../core/Component.js";
 import { authStore } from "../core/AuthStore.js";
 import { createPageLayout } from "../core/PageLayout.js";
 import { createButton, createSpinner } from "@workspace/ui/components/Button";
-import { createModal } from "@workspace/ui/components/Modal";
+import { createConfirmModal } from "@workspace/ui/components/Modal";
 import { Icons } from "@workspace/ui/components/Icons";
 import { apiClient } from "../core/APIClient.js";
 import { toast } from "../core/ToastManager.js";
@@ -64,11 +64,20 @@ export class ProjectListComponent extends Component {
     });
 
     // Close dropdowns when clicking outside
-    document.addEventListener("click", () => {
-      this.container
-        .querySelectorAll(".dropdown--open")
-        .forEach((d) => d.classList.remove("dropdown--open"));
-    });
+    this._closeDropdownsHandler = () => {
+      if (this.container) {
+        this.container
+          .querySelectorAll(".dropdown--open")
+          .forEach((d) => d.classList.remove("dropdown--open"));
+      }
+    };
+    document.addEventListener("click", this._closeDropdownsHandler);
+  }
+
+  onUnmount() {
+    if (this._closeDropdownsHandler) {
+      document.removeEventListener("click", this._closeDropdownsHandler);
+    }
   }
 
   _toggleDropdown(trigger) {
@@ -101,36 +110,15 @@ export class ProjectListComponent extends Component {
     const project = this.state.projects.find((p) => p.id === projectId);
     if (!project) return;
 
-    const content = document.createElement("div");
-    content.className = "confirm-modal-content";
-    content.innerHTML = `
-      <p>Are you sure you want to delete <strong>${project.name}</strong>?</p>
-      <p class="text-muted text-sm">This action is permanent and will delete all associated tasks.</p>
-      <div class="form-actions">
-        <button id="confirm-delete-btn" class="btn btn--danger">Delete Project</button>
-        <button id="cancel-delete-btn" class="btn btn--ghost">Cancel</button>
-      </div>
-    `;
-
-    const modal = createModal({
+    const modal = createConfirmModal({
       id: "delete-project-modal",
       title: "Delete Project",
-      content,
-      onClose: () => {
-        modal.element.remove();
-      },
+      message: `Are you sure you want to delete <strong>${project.name}</strong>?`,
+      detail: "This action is permanent and will delete all associated tasks.",
+      confirmLabel: "Delete Project",
+      onConfirm: () => this._handleDelete(projectId),
     });
 
-    content.querySelector("#confirm-delete-btn").addEventListener("click", () => {
-      this._handleDelete(projectId);
-      modal.close();
-    });
-
-    content.querySelector("#cancel-delete-btn").addEventListener("click", () => {
-      modal.close();
-    });
-
-    // Important: we need to append the modal element to the document
     document.body.appendChild(modal.element);
     modal.open();
   }

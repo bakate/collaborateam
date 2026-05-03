@@ -120,7 +120,7 @@ describe('ProjectListComponent', () => {
 
     await new Promise(resolve => setTimeout(resolve, 20));
 
-    container.querySelector(`#view-project-${projects[0].id}`).click();
+    container.querySelector(`.project-card[data-project-id="${projects[0].id}"]`).click();
     expect(selectHandler).toHaveBeenCalledWith({ projectId: projects[0].id });
   });
 

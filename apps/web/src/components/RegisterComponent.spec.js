@@ -22,7 +22,7 @@ describe('RegisterComponent', () => {
 
   it('should render a registration form with name, email, and password fields', () => {
     expect(container.querySelector('#register-form')).toBeTruthy();
-    expect(container.querySelector('#register-name')).toBeTruthy();
+    expect(container.querySelector('#register-username')).toBeTruthy();
     expect(container.querySelector('#register-email')).toBeTruthy();
     expect(container.querySelector('#register-password')).toBeTruthy();
     expect(container.querySelector('#register-form-submit')).toBeTruthy();
@@ -49,7 +49,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should show error if email format is invalid', async () => {
-      container.querySelector('#register-name').value = faker.person.fullName();
+      container.querySelector('#register-username').value = faker.person.fullName();
       container.querySelector('#register-email').value = 'not-an-email';
       container.querySelector('#register-password').value = 'Password1';
       await submit();
@@ -58,7 +58,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should reject a password shorter than 8 characters', async () => {
-      container.querySelector('#register-name').value = faker.person.fullName();
+      container.querySelector('#register-username').value = faker.person.fullName();
       container.querySelector('#register-email').value = faker.internet.email();
       container.querySelector('#register-password').value = 'Short1';
       await submit();
@@ -67,7 +67,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should reject a password without an uppercase letter', async () => {
-      container.querySelector('#register-name').value = faker.person.fullName();
+      container.querySelector('#register-username').value = faker.person.fullName();
       container.querySelector('#register-email').value = faker.internet.email();
       container.querySelector('#register-password').value = 'nouppercase1';
       await submit();
@@ -76,7 +76,7 @@ describe('RegisterComponent', () => {
     });
 
     it('should reject a password without a number', async () => {
-      container.querySelector('#register-name').value = faker.person.fullName();
+      container.querySelector('#register-username').value = faker.person.fullName();
       container.querySelector('#register-email').value = faker.internet.email();
       container.querySelector('#register-password').value = 'NoNumberHere';
       await submit();
@@ -87,7 +87,7 @@ describe('RegisterComponent', () => {
 
   describe('API interactions', () => {
     const fillAndSubmit = async () => {
-      container.querySelector('#register-name').value = faker.person.fullName();
+      container.querySelector('#register-username').value = faker.person.fullName();
       container.querySelector('#register-email').value = faker.internet.email();
       container.querySelector('#register-password').value = 'Secure123';
       container.querySelector('#register-form').dispatchEvent(

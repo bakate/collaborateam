@@ -11,6 +11,7 @@ import {
   clearFormError,
 } from "@workspace/ui/components/Form";
 import { createSpinner } from "@workspace/ui/components/Button";
+import { createAuthCard } from "../core/AuthCard.js";
 
 const API_BASE = "/api";
 
@@ -50,15 +51,12 @@ export class RegisterComponent extends Component {
   }
 
   render() {
-    const wrapper = document.createElement("section");
-    wrapper.className = "auth-card";
-    wrapper.id = "register-section";
-    wrapper.setAttribute("aria-label", "Registration form");
-
-    const title = document.createElement("h1");
-    title.className = "auth-card__title";
-    title.textContent = "Create your account";
-    wrapper.appendChild(title);
+    const { wrapper } = createAuthCard({
+      id: "register-section",
+      ariaLabel: "Registration form",
+      title: "Create your account",
+      footerHtml: `Already have an account? <a href="#/login" id="go-to-login">Sign in</a>`,
+    });
 
     const usernameField = createInput({
       id: "register-username",
@@ -109,11 +107,7 @@ export class RegisterComponent extends Component {
     }
 
     wrapper.appendChild(form);
-
-    const loginLink = document.createElement("p");
-    loginLink.className = "auth-card__footer";
-    loginLink.innerHTML = `Already have an account? <a href="#/login" id="go-to-login">Sign in</a>`;
-    wrapper.appendChild(loginLink);
+    wrapper.appendFooter();
 
     return wrapper;
   }

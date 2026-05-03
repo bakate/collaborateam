@@ -6,7 +6,7 @@ import { apiClient } from "../core/APIClient.js";
 import { toast } from "../core/ToastManager.js";
 import { TaskFilterComponent } from "./TaskFilterComponent.js";
 import { createButton, createSpinner } from "@workspace/ui/components/Button";
-import { createModal } from "@workspace/ui/components/Modal";
+import { createConfirmModal } from "@workspace/ui/components/Modal";
 import { Icons } from "@workspace/ui/components/Icons";
 
 /**
@@ -688,38 +688,14 @@ export class TaskListComponent extends Component {
   _showDeleteConfirmation() {
     if (!this.state.project) return;
 
-    const content = document.createElement("div");
-    content.className = "confirm-modal-content";
-    content.innerHTML = `
-      <p>Are you sure you want to delete <strong>${this.state.project.name}</strong>?</p>
-      <p class="text-muted text-sm">This action is permanent and will delete all associated tasks.</p>
-      <div class="form-actions">
-        <button id="confirm-project-delete-btn" class="btn btn--danger">Delete Project</button>
-        <button id="cancel-project-delete-btn" class="btn btn--ghost">Cancel</button>
-      </div>
-    `;
-
-    const modal = createModal({
+    const modal = createConfirmModal({
       id: "delete-project-modal-task",
       title: "Delete Project",
-      content,
-      onClose: () => {
-        modal.element.remove();
-      },
+      message: `Are you sure you want to delete <strong>${this.state.project.name}</strong>?`,
+      detail: "This action is permanent and will delete all associated tasks.",
+      confirmLabel: "Delete Project",
+      onConfirm: () => this._handleDeleteProject(),
     });
-
-    content
-      .querySelector("#confirm-project-delete-btn")
-      .addEventListener("click", () => {
-        this._handleDeleteProject();
-        modal.close();
-      });
-
-    content
-      .querySelector("#cancel-project-delete-btn")
-      .addEventListener("click", () => {
-        modal.close();
-      });
 
     document.body.appendChild(modal.element);
     modal.open();
