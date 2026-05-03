@@ -23,8 +23,8 @@ test.describe("Authentication & Guards", () => {
 
     await page.goto("/#/register");
     await page
-      .getByRole("textbox", { name: /Full name/i })
-      .fill(faker.person.fullName());
+      .getByRole("textbox", { name: /Username/i })
+      .fill(faker.internet.username());
     await page.getByRole("textbox", { name: /Email address/i }).fill(email);
     await page.getByRole("textbox", { name: /Password/i }).fill(password);
     await page.getByRole("button", { name: /Sign up/i }).click();

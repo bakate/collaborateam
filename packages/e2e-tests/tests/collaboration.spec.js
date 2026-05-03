@@ -17,8 +17,8 @@ test.describe("Real-time Collaboration", () => {
     const emailA = faker.internet.email();
     await pageA.goto("/#/register");
     await pageA
-      .getByRole("textbox", { name: /Full name/i })
-      .fill(faker.person.fullName());
+      .getByRole("textbox", { name: /Username/i })
+      .fill(faker.internet.username());
     await pageA.getByRole("textbox", { name: /Email address/i }).fill(emailA);
     await pageA
       .getByRole("textbox", { name: /Password/i })
@@ -44,8 +44,8 @@ test.describe("Real-time Collaboration", () => {
     });
     await expect(projectCard).toBeVisible();
 
-    // Get project ID from dataset or URL
-    await projectCard.getByRole("button", { name: /View/i }).click();
+    // Click the project card to view details
+    await projectCard.click();
     await expect(pageA).toHaveURL(/\/projects\/[0-9a-f-]+/);
     const projectUrl = pageA.url();
 
@@ -57,8 +57,8 @@ test.describe("Real-time Collaboration", () => {
     const emailB = faker.internet.email();
     await pageB.goto("/#/register");
     await pageB
-      .getByRole("textbox", { name: /Full name/i })
-      .fill(faker.person.fullName());
+      .getByRole("textbox", { name: /Username/i })
+      .fill(faker.internet.username());
     await pageB.getByRole("textbox", { name: /Email address/i }).fill(emailB);
     await pageB
       .getByRole("textbox", { name: /Password/i })
