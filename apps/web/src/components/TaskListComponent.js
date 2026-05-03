@@ -43,6 +43,9 @@ export class TaskListComponent extends Component {
       status: "all",
       confirmingDeleteId: null,
       view: localStorage.getItem("taskView") || "list",
+      offset: 0,
+      limit: 10,
+      hasMore: true,
     };
   }
 
@@ -119,7 +122,9 @@ export class TaskListComponent extends Component {
         this.setState({ project: data.project });
       } else {
         const data = await response.json().catch(() => ({}));
-        this.setState({ error: data.error || "Failed to load project details" });
+        this.setState({
+          error: data.error || "Failed to load project details",
+        });
       }
     } catch (err) {
       this.setState({ error: err.message });
@@ -244,7 +249,7 @@ export class TaskListComponent extends Component {
       pageClass: `task-list-page task-list-page--${this.state.view}`,
     });
 
-    if (this.state.loading) {
+    if (this.state.loading && this.state.offset === 0) {
       container.appendChild(createSpinner({ label: "Loading tasks" }));
       wrapper.appendChild(container);
       return wrapper;
@@ -279,25 +284,48 @@ export class TaskListComponent extends Component {
       return matchesSearch && matchesStatus;
     });
 
-    // 5. Build Final UI
-    const content =
-      this.state.view === "kanban"
-        ? this._renderKanbanView(filteredTasks)
-        : this._renderListView(filteredTasks);
-
-    // 6. Add Filter Component at the top
+    // 5. Build Final UI - First add filters
     const filterComp = new TaskFilterComponent({
       search: this.state.search,
       status: this.state.status,
     });
     filterComp.on("filter:change", (filters) => {
       this.setState({ ...filters });
+      this._fetchTasks(); // Reset and re-fetch when filters change
     });
+    container.appendChild(filterComp.render());
 
-    // mount() already handles appending to the container
-    filterComp.mount(container);
+    // 6. Then add the tasks list/kanban
+    const content =
+      this.state.view === "kanban"
+        ? this._renderKanbanView(filteredTasks)
+        : this._renderListView(filteredTasks);
 
     container.appendChild(content);
+
+    // 7. Finally add the Load More Button
+    if (this.state.hasMore && !this.state.loading) {
+      const loadMoreContainer = document.createElement("div");
+      loadMoreContainer.className = "load-more-container";
+
+      const loadMoreBtn = createButton({
+        id: "load-more-tasks",
+        label: "Load more tasks",
+        variant: "secondary",
+        size: "md",
+        icon: Icons.plus,
+      });
+
+      loadMoreBtn.addEventListener("click", () => this._fetchTasks(true));
+      loadMoreContainer.appendChild(loadMoreBtn);
+      container.appendChild(loadMoreContainer);
+    } else if (this.state.loading && this.state.offset > 0) {
+      const loadingMore = document.createElement("div");
+      loadingMore.className = "load-more-container";
+      loadingMore.appendChild(createSpinner());
+      container.appendChild(loadingMore);
+    }
+
     wrapper.appendChild(container);
     return wrapper;
   }
@@ -617,18 +645,24 @@ export class TaskListComponent extends Component {
       await apiClient.put(`/projects/${this.props.projectId}/tasks/reorder`, {
         tasks: reorderPayload,
       });
-    } catch (err) {
+    } catch {
       toast.error("Failed to save new order");
       this.setState({ tasks });
     }
   }
 
-  async _fetchTasks() {
-    this.setState({ loading: true, error: null });
+  async _fetchTasks(append = false) {
+    const currentOffset = append ? this.state.offset : 0;
+
+    this.setState({
+      loading: true,
+      error: null,
+      ...(append ? {} : { offset: 0, hasMore: true }),
+    });
 
     try {
       const response = await apiClient.get(
-        `/projects/${this.props.projectId}/tasks`,
+        `/projects/${this.props.projectId}/tasks?limit=${this.state.limit}&offset=${currentOffset}`,
       );
 
       if (!response.ok) {
@@ -637,7 +671,14 @@ export class TaskListComponent extends Component {
       }
 
       const data = await response.json();
-      this.setState({ loading: false, tasks: data.tasks });
+      const newTasks = data.tasks || [];
+
+      this.setState({
+        loading: false,
+        tasks: append ? [...this.state.tasks, ...newTasks] : newTasks,
+        offset: currentOffset + newTasks.length,
+        hasMore: newTasks.length === this.state.limit,
+      });
     } catch (err) {
       this.setState({ loading: false, error: err.message });
       toast.error(err.message);

@@ -6,12 +6,12 @@ import { sql } from '../db/db.js';
  */
 export const PostgresUserRepository = Object.freeze({
   async findByEmail({ email }) {
-    const rows = await sql`SELECT * FROM users WHERE email = ${email} LIMIT 1`;
+    const rows = await sql`SELECT * FROM users WHERE LOWER(email) = LOWER(${email}) LIMIT 1`;
     return rows[0] || null;
   },
 
   async findByUsername({ username }) {
-    const rows = await sql`SELECT * FROM users WHERE username = ${username} LIMIT 1`;
+    const rows = await sql`SELECT * FROM users WHERE LOWER(username) = LOWER(${username}) LIMIT 1`;
     return rows[0] || null;
   },
 

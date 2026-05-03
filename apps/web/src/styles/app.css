@@ -328,6 +328,8 @@
   padding: 4px 10px;
   border-radius: 9999px;
   display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
   white-space: nowrap; /* Keep on one line */
   font-size: 0.7rem;
   font-weight: 800;
@@ -413,10 +415,12 @@
 /* Specific Page Adjustments */
 .task-list-page--list main.container {
   max-width: 1200px;
+  padding-bottom: 2rem;
 }
 
 .task-list-page--kanban main.container {
   max-width: 1800px;
+  padding-bottom: 2rem;
 }
 
 /* View Toggles */
@@ -1154,8 +1158,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalIn {
@@ -1167,4 +1175,17 @@
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-md);
+  width: 100%;
+}
+
+.load-more-container .btn {
+  min-width: 200px;
 }

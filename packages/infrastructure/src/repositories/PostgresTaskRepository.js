@@ -1,4 +1,4 @@
-import { sql } from '../db/db.js';
+import { sql } from "../db/db.js";
 
 /**
  * PostgreSQL implementation of the Task Repository.
@@ -9,14 +9,19 @@ export const PostgresTaskRepository = Object.freeze({
     const conn = tx || sql;
     const rows = await conn`
       INSERT INTO tasks (title, description, status, project_id)
-      VALUES (${title}, ${description || ''}, ${status || 'todo'}, ${projectId})
+      VALUES (${title}, ${description || ""}, ${status || "todo"}, ${projectId})
       RETURNING *
     `;
     return rows[0];
   },
 
-  async findByProjectId({ projectId }) {
-    return sql`SELECT * FROM tasks WHERE project_id = ${projectId} ORDER BY created_at ASC`;
+  async findByProjectId({ projectId, limit = 10, offset = 0 }) {
+    return sql`
+      SELECT * FROM tasks 
+      WHERE project_id = ${projectId} 
+      ORDER BY created_at ASC 
+      LIMIT ${limit} OFFSET ${offset}
+    `;
   },
 
   async findById({ id }) {
@@ -50,5 +55,5 @@ export const PostgresTaskRepository = Object.freeze({
     for (const { id } of tasks) {
       await sql`UPDATE tasks SET updated_at = NOW() WHERE id = ${id}`;
     }
-  }
+  },
 });

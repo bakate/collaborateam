@@ -35,21 +35,25 @@ export const createTaskService = ({ taskRepository, projectRepository }) => {
     },
 
     /**
-     * Finds all tasks for a specific project. Publicly visible to all authenticated users.
-     * @param {Object} input - { projectId }
+     * Finds tasks for a specific project with pagination.
+     * @param {Object} input - { projectId, limit, offset }
      */
-    async findByProject({ projectId }) {
+    async findByProject({ projectId, limit, offset }) {
       if (!projectId) {
-        return { ok: false, error: new Error('projectId is required') };
+        return { ok: false, error: new Error("projectId is required") };
       }
 
       try {
         const project = await projectRepository.findById({ id: projectId });
         if (!project) {
-          return { ok: false, error: new Error('Project not found') };
+          return { ok: false, error: new Error("Project not found") };
         }
 
-        const tasks = await taskRepository.findByProjectId({ projectId });
+        const tasks = await taskRepository.findByProjectId({
+          projectId,
+          limit,
+          offset,
+        });
         return { ok: true, value: tasks };
       } catch (error) {
         return { ok: false, error };

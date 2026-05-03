@@ -43,10 +43,10 @@ export const seedDatabase = async () => {
 
     // 4. Create Tasks
     const tasks = insertedProjects.flatMap((project) => {
-      // 3 to 10 tasks per project
-      const count = faker.number.int({ min: 3, max: 10 });
+      // 10 to 30 tasks per project
+      const count = faker.number.int({ min: 10, max: 30 });
       return Array.from({ length: count }).map(() => ({
-        title: faker.lorem.words({ min: 3, max: 6 }),
+        title: faker.lorem.words({ min: 10, max: 20 }),
         description: faker.lorem.paragraph(),
         status: faker.helpers.arrayElement(["todo", "in_progress", "done"]),
         project_id: project.id,
