@@ -570,15 +570,15 @@ L'implémentation suit les **principes SOLID** et une approche incrémentale : s
 - [ ] 23. Checkpoint final - Vérifier tous les tests
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 24. Documentation et déploiement
-  - [ ] 24.1 Créer la documentation
+- [x] 24. Documentation et déploiement
+  - [x] 24.1 Créer la documentation
     - README.md avec instructions de setup
     - Documentation API (endpoints, formats)
     - Documentation des composants frontend
     - Guide de contribution
     - _Requirements: 1.1, 1.2, 1.3_
 
-  - [ ] 24.2 Préparer le déploiement
+  - [x] 24.2 Préparer le déploiement
     - Configurer les variables d'environnement
     - Créer les Dockerfiles pour frontend et backend
     - Créer docker-compose.yml pour dev local

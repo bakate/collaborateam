@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: collaborateam_postgres
+  db:
+    image: postgres:alpine
+    container_name: collaborateam-db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres_password
@@ -11,12 +11,40 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: collaborateam-api
+    ports:
+      - "3000:3000"
+    environment:
+      - PGUSER=postgres
+      - PGPASSWORD=postgres_password
+      - PGHOST=db
+      - PGPORT=5432
+      - PGDATABASE=collaborateam
+      - JWT_SECRET=your_super_secret_jwt_key_change_me_in_prod
+    depends_on:
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: collaborateam-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
 volumes:
-  pgdata:
+  postgres_data:

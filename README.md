@@ -1,159 +1,91 @@
-# Turborepo starter
+# Collaborateam
 
-This Turborepo starter is maintained by the Turborepo core team.
+Collaborateam is a real-time project management and collaboration platform built with a modern Vanilla JavaScript stack. It features a robust hexagonal architecture, real-time synchronization via WebSockets, and a comprehensive automated testing suite.
 
-## Using this example
+## 🚀 Key Features
 
-Run the following command:
+- **Real-time Collaboration**: Instant synchronization of tasks and projects across users.
+- **Project Management**: CRUD operations for projects and tasks with status tracking.
+- **Advanced Filtering**: Filter tasks by status, owner, and search terms.
+- **Hexagonal Architecture**: Clean separation of concerns between domain, application, and infrastructure layers.
+- **Robust Security**: JWT-based authentication and secure password hashing.
+- **Responsive Design**: Optimized for Mobile, Tablet, and Desktop viewports.
 
-```sh
-npx create-turbo@latest
+## 🏗️ Project Structure (Monorepo)
+
+```text
+├── apps/
+│   ├── api/            # Node.js/Bun API Server
+│   └── web/            # Vanilla JS Frontend (Vite)
+├── packages/
+│   ├── domain/         # Pure Business Logic (Entities)
+│   ├── application/    # Use Cases & Service Interfaces
+│   ├── infrastructure/ # DB Adapters, Repository Impls, Auth Providers
+│   ├── ui/             # Reusable Vanilla UI Components
+│   └── e2e-tests/      # Playwright Integration & E2E Tests
+└── scripts/            # Automation and utility scripts
 ```
 
-## What's inside?
+## 🛠️ Technology Stack
 
-This Turborepo includes the following packages/apps:
+- **Frontend**: Vanilla JavaScript (ES6+), Vite, CSS Modules.
+- **Backend**: Node.js / Bun, WebSocket (ws), JWT.
+- **Database**: PostgreSQL with `postgres.js`.
+- **Testing**: Vitest (Unit/Integration), Playwright (E2E), Fast-check (Property-based).
+- **Tooling**: Turborepo, pnpm, Docker, ESLint, Prettier.
 
-### Apps and Packages
+## 🚦 Getting Started
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+### Prerequisites
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- [Node.js](https://nodejs.org/) (>= 24) or [Bun](https://bun.sh/)
+- [pnpm](https://pnpm.io/) (>= 10)
+- [Docker](https://www.docker.com/) & Docker Compose
 
-### Utilities
+### Installation
 
-This Turborepo has some additional tools already setup for you:
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/yourusername/collaborateam.git
+   cd collaborateam
+   ```
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+2. **Install dependencies**:
+   ```bash
+   pnpm install
+   ```
 
-### Build
+3. **Start infrastructure (PostgreSQL)**:
+   ```bash
+   pnpm run services:up
+   ```
 
-To build all apps and packages, run the following command:
+4. **Setup the database**:
+   ```bash
+   pnpm --filter @workspace/infrastructure run db:setup
+   ```
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+5. **Start development servers**:
+   ```bash
+   pnpm run dev
+   ```
 
-```sh
-cd my-turborepo
-turbo build
-```
+The frontend will be available at [http://localhost:5173](http://localhost:5173) and the API at [http://localhost:3000](http://localhost:3000).
 
-Without global `turbo`, use your package manager:
+## 🧪 Testing
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
-```
+- **Run all tests**: `pnpm run test`
+- **Unit/Integration tests**: `pnpm run test:unit`
+- **Integration (API)**: `./scripts/test-integration.sh`
+- **E2E tests**: `pnpm run test:e2e`
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## 📘 Documentation
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+More detailed documentation can be found in the `docs/` directory:
+- [API Documentation](docs/api.md)
+- [Frontend Architecture](docs/frontend.md)
+- [Contribution Guide](CONTRIBUTING.md)
 
-```sh
-turbo build --filter=docs
-```
+## ⚖️ License
 
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+MIT
