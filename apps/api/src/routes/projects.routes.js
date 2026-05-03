@@ -5,6 +5,7 @@ import { withTransaction } from '@workspace/infrastructure/db/db';
 import { validatePayload, createProjectSchema, updateProjectSchema } from '@workspace/infrastructure/schemas/ProjectSchemas';
 import { requireAuth } from '../middlewares/auth.js';
 import { json } from './response.js';
+import { isValidUuid } from '../core/validation.js';
 
 const projectService = createProjectService({ 
   projectRepository: PostgresProjectRepository,
@@ -48,6 +49,8 @@ export const handleProjectRoutes = async (req, url) => {
     if (authError) return authError;
 
     const id = parseId(url);
+    if (!isValidUuid(id)) return json({ error: 'Invalid project ID format' }, 400);
+
     const result = await projectService.findById({ id });
     if (!result.ok) {
       const status = result.error.message === 'Project not found' ? 404 : 500;
@@ -63,6 +66,8 @@ export const handleProjectRoutes = async (req, url) => {
     if (authError) return authError;
 
     const id = parseId(url);
+    if (!isValidUuid(id)) return json({ error: 'Invalid project ID format' }, 400);
+
     const body = await req.json().catch(() => null);
     const validation = validatePayload(updateProjectSchema, body);
     if (!validation.ok) return json({ error: validation.error.message }, 400);
@@ -83,6 +88,8 @@ export const handleProjectRoutes = async (req, url) => {
     if (authError) return authError;
 
     const id = parseId(url);
+    if (!isValidUuid(id)) return json({ error: 'Invalid project ID format' }, 400);
+
     const result = await projectService.delete({ id, ownerId: req.user.userId });
     if (!result.ok) {
       const status = result.error.message === 'Unauthorized' ? 403

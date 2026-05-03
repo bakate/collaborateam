@@ -10,6 +10,7 @@ import {
 import { requireAuth } from "../middlewares/auth.js";
 import { wsService } from "../server.js";
 import { json } from "./response.js";
+import { isValidUuid } from "../core/validation.js";
 
 const taskService = createTaskService({
   taskRepository: PostgresTaskRepository,
@@ -29,6 +30,8 @@ export const handleTaskRoutes = async (req, url) => {
     if (authError) return authError;
 
     const projectId = listMatch[1];
+    if (!isValidUuid(projectId)) return json({ error: 'Invalid project ID format' }, 400);
+
     const limit = Number(url.searchParams.get("limit")) || 10;
     const offset = Number(url.searchParams.get("offset")) || 0;
 
@@ -51,6 +54,8 @@ export const handleTaskRoutes = async (req, url) => {
     if (authError) return authError;
 
     const projectId = listMatch[1];
+    if (!isValidUuid(projectId)) return json({ error: 'Invalid project ID format' }, 400);
+
     const body = await req.json().catch(() => null);
     const validation = validatePayload(createTaskSchema, {
       ...body,
@@ -88,6 +93,8 @@ export const handleTaskRoutes = async (req, url) => {
     if (authError) return authError;
 
     const projectId = reorderMatch[1];
+    if (!isValidUuid(projectId)) return json({ error: 'Invalid project ID format' }, 400);
+
     const body = await req.json().catch(() => null);
     const validation = validatePayload(reorderTasksSchema, {
       ...body,
@@ -120,6 +127,8 @@ export const handleTaskRoutes = async (req, url) => {
     if (authError) return authError;
 
     const id = taskMatch[1];
+    if (!isValidUuid(id)) return json({ error: 'Invalid task ID format' }, 400);
+
     const body = await req.json().catch(() => null);
     const validation = validatePayload(updateTaskSchema, body);
     if (!validation.ok) return json({ error: validation.error.message }, 400);
@@ -159,6 +168,8 @@ export const handleTaskRoutes = async (req, url) => {
     if (authError) return authError;
 
     const id = taskMatch[1];
+    if (!isValidUuid(id)) return json({ error: 'Invalid task ID format' }, 400);
+
     const body = await req.json().catch(() => null);
     const projectId = body?.projectId;
     if (!projectId)

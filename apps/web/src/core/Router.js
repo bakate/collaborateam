@@ -1,4 +1,5 @@
 import { authStore } from './AuthStore.js';
+import { NotFoundComponent } from '../components/NotFoundComponent.js';
 
 /**
  * Router — Simple hash-based router for Vanilla JS.
@@ -49,8 +50,8 @@ export class Router {
     }
 
     if (!match) {
-      console.error('No route found for:', hash);
-      return this.navigate('/login');
+      console.warn('No route found for:', hash);
+      return this._renderRoute({ component: NotFoundComponent }, {});
     }
 
     this._renderRoute(match, params);
