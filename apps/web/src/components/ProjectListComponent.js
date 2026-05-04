@@ -30,39 +30,35 @@ export class ProjectListComponent extends Component {
     this._setupEventListeners();
   }
 
+  events() {
+    return {
+      'click [data-action]': '_onActionClick',
+      'click .project-card__menu-trigger': '_onMenuTrigger',
+      'click .project-card': '_onCardClick',
+    };
+  }
+
+  _onActionClick(e, target) {
+    e.preventDefault();
+    e.stopPropagation();
+    this._handleAction(target.dataset);
+  }
+
+  _onMenuTrigger(e, target) {
+    e.preventDefault();
+    e.stopPropagation();
+    this._toggleDropdown(target);
+  }
+
+  _onCardClick(e, target) {
+    const { projectId } = target.dataset;
+    if (this.props.router) {
+      this.props.router.navigate(`/projects/${projectId}`);
+    }
+    this.emit("project:select", { projectId });
+  }
+
   _setupEventListeners() {
-    if (!this.container) return;
-
-    // Global click listener for the component
-    this.container.addEventListener("click", (e) => {
-      // 1. Handle actions (buttons with data-action)
-      const actionBtn = e.target.closest("[data-action]");
-      if (actionBtn) {
-        e.preventDefault();
-        e.stopPropagation(); // Prevent card click
-        this._handleAction(actionBtn.dataset);
-        return;
-      }
-
-      // 2. Handle dropdown toggle
-      const menuTrigger = e.target.closest(".project-card__menu-trigger");
-      if (menuTrigger) {
-        e.preventDefault();
-        e.stopPropagation();
-        this._toggleDropdown(menuTrigger);
-        return;
-      }
-
-      // 3. Handle card click (Navigate to project)
-      const card = e.target.closest(".project-card");
-      if (card) {
-        const { projectId } = card.dataset;
-        if (this.props.router)
-          this.props.router.navigate(`/projects/${projectId}`);
-        this.emit("project:select", { projectId });
-      }
-    });
-
     // Close dropdowns when clicking outside
     this._closeDropdownsHandler = () => {
       if (this.container) {

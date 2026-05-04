@@ -35,6 +35,8 @@ const init = async () => {
   authStore.subscribe(({ isAuthenticated }) => {
     if (isAuthenticated) {
       wsManager.connect();
+    } else {
+      wsManager.disconnect();
     }
   });
 

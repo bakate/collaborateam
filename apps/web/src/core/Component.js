@@ -200,6 +200,7 @@ export class Component {
         if (mappedEvent === eventName && target.matches(selector)) {
           if (typeof this[methodName] === "function") {
             this[methodName](e, target);
+            break; // Stop processing this element level once a match is found
           } else {
             console.warn(
               `[Component] Method ${methodName} not found for event ${key}`,
@@ -207,6 +208,7 @@ export class Component {
           }
         }
       }
+      if (e.cancelBubble) break; // Respect stopPropagation() called in handlers
       target = target.parentNode;
     }
   }

@@ -70,38 +70,47 @@ export class TaskListComponent extends Component {
     });
   }
 
+  events() {
+    return {
+      'click [data-action="delete-init"]': "_onDeleteInit",
+      'click [data-action="confirm-delete"]': "_onConfirmDelete",
+      'click [data-action="cancel-delete"]': "_onCancelDelete",
+      'click [data-action="edit"]': "_onEdit",
+    };
+  }
+
+  _onDeleteInit(e, target) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState({ confirmingDeleteId: target.dataset.taskId });
+  }
+
+  _onConfirmDelete(e, target) {
+    e.preventDefault();
+    e.stopPropagation();
+    this._handleDelete(target.dataset.taskId);
+  }
+
+  _onCancelDelete(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.setState({ confirmingDeleteId: null });
+  }
+
+  _onEdit(e, target) {
+    e.preventDefault();
+    e.stopPropagation();
+    const { taskId } = target.dataset;
+    if (this.props.router) {
+      this.props.router.navigate(
+        `/projects/${this.props.projectId}/tasks/${taskId}/edit`,
+      );
+    }
+    this.emit("task:edit", { taskId });
+  }
+
   _setupEventListeners() {
-    if (!this.container) return;
-
-    this.container.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-action]");
-      if (!btn) return;
-
-      e.preventDefault();
-      e.stopPropagation();
-
-      const { action, taskId } = btn.dataset;
-
-      switch (action) {
-        case "delete-init":
-          this.setState({ confirmingDeleteId: taskId });
-          break;
-        case "confirm-delete":
-          this._handleDelete(taskId);
-          break;
-        case "cancel-delete":
-          this.setState({ confirmingDeleteId: null });
-          break;
-        case "edit":
-          if (this.props.router) {
-            this.props.router.navigate(
-              `/projects/${this.props.projectId}/tasks/${taskId}/edit`,
-            );
-          }
-          this.emit("task:edit", { taskId });
-          break;
-      }
-    });
+    // Event delegation is now handled by the events() system
   }
 
   onUnmount() {

@@ -12,24 +12,27 @@ class WebSocketManager {
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
     this.messageQueue = [];
+    this.status = 'disconnected';
   }
 
   connect() {
     if (this.socket || !authStore.token || !authStore.user) return;
 
-    const wsBaseUrl = env.VITE_API_URL.replace(/^http/, "ws").replace(/\/$/, "");
-    const wsUrl = `${wsBaseUrl}/ws?userId=${authStore.user.id}`;
+    // Robust URL calculation: use the same host but root /ws path
+    const url = new URL(env.VITE_API_URL);
+    const protocol = url.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${url.host}/ws?userId=${authStore.user.id}`;
 
     console.warn("[WS] Connecting to", wsUrl);
     this.socket = new WebSocket(wsUrl);
+    this._setStatus('connecting');
 
     this.socket.onopen = () => {
       console.warn("[WS] Connected");
       this.reconnectAttempts = 0;
-      this._dispatch({ type: "ws:status", data: "connected" });
+      this._setStatus('connected');
       this._flushQueue();
     };
-    // ... suite (rest of the socket handlers remain the same)
 
     this.socket.onmessage = (event) => {
       try {
@@ -50,22 +53,27 @@ class WebSocketManager {
     this.socket.onclose = () => {
       console.warn('[WS] Disconnected');
       this.socket = null;
-      this._dispatch({ type: 'ws:status', data: 'disconnected' });
+      this._setStatus('disconnected');
       this._attemptReconnect();
     };
 
     this.socket.onerror = (err) => {
       console.error('[WS] Error:', err);
-      this._dispatch({ type: 'ws:status', data: 'error' });
+      this._setStatus('error');
     };
+  }
+
+  _setStatus(status) {
+    this.status = status;
+    this._dispatch({ type: 'ws:status', data: status });
   }
 
   _attemptReconnect() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 10000);
-      console.warn(`[WS] Reconnecting in ${delay}ms...`);
-      this._dispatch({ type: 'ws:status', data: 'connecting' });
+      console.warn(`[WS] Reconnecting in ${delay}ms... (Attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+      this._setStatus('connecting');
       setTimeout(() => this.connect(), delay);
     }
   }
@@ -100,6 +108,16 @@ class WebSocketManager {
 
   leaveProject(projectId) {
     this.send("leave", projectId);
+  }
+
+  disconnect() {
+    if (this.socket) {
+      this.socket.onclose = null; // Prevent reconnection loop
+      this.socket.close();
+      this.socket = null;
+    }
+    this.reconnectAttempts = 0;
+    this._setStatus('disconnected');
   }
 }
 

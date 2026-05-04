@@ -5,7 +5,7 @@ export class WebSocketStatus extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      status: wsManager.socket?.readyState === WebSocket.OPEN ? 'connected' : 'disconnected'
+      status: wsManager.status
     };
   }
 
