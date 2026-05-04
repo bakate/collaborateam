@@ -65,3 +65,9 @@ export const runMigrations = async () => {
     return { ok: false, error };
   }
 };
+
+// Auto-execution if run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const result = await runMigrations();
+  process.exit(result.ok ? 0 : 1);
+}

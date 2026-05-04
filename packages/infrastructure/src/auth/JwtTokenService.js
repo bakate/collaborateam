@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
+import { env } from '../config/env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_development_secret';
+const JWT_SECRET = env.JWT_SECRET;
 const ACCESS_EXPIRES_IN = '15m';
 const REFRESH_EXPIRES_IN = '7d';
 

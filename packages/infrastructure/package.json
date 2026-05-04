@@ -9,6 +9,7 @@
     "@workspace/application": "workspace:*",
     "@workspace/domain": "workspace:*",
     "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
     "jsonwebtoken": "^9.0.2",
     "pino": "^8.20.0",
     "postgres": "^3.4.4",
@@ -17,6 +18,7 @@
   "scripts": {
     "test": "vitest",
     "lint": "eslint src",
+    "db:migrate": "bun src/db/migrate.js",
     "db:seed": "bun src/db/seed.js",
     "db:reset": "bun src/db/reset.js",
     "db:setup": "bun src/db/reset.js && bun src/db/seed.js"

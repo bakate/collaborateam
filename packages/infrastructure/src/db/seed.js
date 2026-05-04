@@ -71,9 +71,8 @@ export const seedDatabase = async () => {
   }
 };
 
-// If ran directly via CLI
-if (import.meta.main || process.argv[1] === new URL(import.meta.url).pathname) {
-  seedDatabase()
-    .then(() => process.exit(0))
-    .catch(() => process.exit(1));
+// Auto-execution if run directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const result = await seedDatabase();
+  process.exit(result.ok ? 0 : 1);
 }

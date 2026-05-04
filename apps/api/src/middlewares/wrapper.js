@@ -1,3 +1,4 @@
+import { env } from '@workspace/infrastructure/config/env';
 import { logger } from '@workspace/infrastructure/logger/logger';
 
 const CORS_HEADERS = {
@@ -74,7 +75,7 @@ export const applyMiddlewares = (handler) => {
         ? error.toJSON() 
         : { 
             error: 'Internal Server Error',
-            message: process.env.NODE_ENV !== 'production' ? error.message : undefined,
+            message: env.NODE_ENV !== 'production' ? error.message : undefined,
             code: ErrorCode.INTERNAL_ERROR
           };
 

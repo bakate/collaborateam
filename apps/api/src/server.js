@@ -1,3 +1,4 @@
+import { env } from '@workspace/infrastructure/config/env';
 import { logger } from '@workspace/infrastructure/logger/logger';
 import { checkConnection } from '@workspace/infrastructure/db/db';
 import { runMigrations } from '@workspace/infrastructure/db/migrate';
@@ -8,7 +9,7 @@ import { handleAuthRoutes } from './routes/auth.routes.js';
 import { handleProjectRoutes } from './routes/projects.routes.js';
 import { handleTaskRoutes } from './routes/tasks.routes.js';
 
-const PORT = process.env.PORT || 3000;
+const PORT = env.PORT;
 
 // Singleton WebSocket service — shared across the app
 export const wsService = createBunWebSocketService();
