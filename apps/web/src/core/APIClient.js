@@ -1,11 +1,12 @@
 import { authStore } from './AuthStore.js';
+import { env } from './env.js';
 
 /**
  * APIClient — Centralized fetch wrapper with retry logic and auth integration.
  */
 class APIClient {
   constructor(options = {}) {
-    this.baseUrl = options.baseUrl || '/api';
+    this.baseUrl = options.baseUrl || env.VITE_API_URL;
     this.maxRetries = options.maxRetries || 3;
     this.baseDelay = options.baseDelay || 1000;
   }

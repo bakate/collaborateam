@@ -1,5 +1,6 @@
 import { Component } from "../core/Component.js";
 import { authStore } from "../core/AuthStore.js";
+import { apiClient } from "../core/APIClient.js";
 import {
   createInput,
   showFieldError,
@@ -13,7 +14,6 @@ import {
 import { createSpinner } from "@workspace/ui/components/Button";
 import { createAuthCard } from "../core/AuthCard.js";
 
-const API_BASE = "/api";
 
 const PASSWORD_RULES = {
   minLength: 8,
@@ -169,10 +169,10 @@ export class RegisterComponent extends Component {
     this.setState({ loading: true, error: null });
 
     try {
-      const response = await fetch(`${API_BASE}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
+      const response = await apiClient.post("/auth/register", {
+        username,
+        email,
+        password,
       });
 
       const data = await response.json();
@@ -199,8 +199,8 @@ export class RegisterComponent extends Component {
       if (this.props.router) {
         this.props.router.navigate("/");
       }
-    } catch (e) {
-      console.log({ e });
+    } catch (error) {
+      console.error("[RegisterComponent] Error:", error);
       this.setState({
         loading: false,
         error: "Network error. Please try again.",

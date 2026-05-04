@@ -1,3 +1,5 @@
+import { apiClient } from './APIClient.js';
+
 /**
  * AuthStore — Manage authentication state and JWT tokens.
  */
@@ -19,9 +21,7 @@ class AuthStore {
     if (!this._accessToken) return false;
 
     try {
-      const response = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${this._accessToken}` }
-      });
+      const response = await apiClient.get('/auth/me');
 
       if (response.ok) {
         const { user } = await response.json();

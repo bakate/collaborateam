@@ -1,4 +1,5 @@
 import { authStore } from './AuthStore.js';
+import { env } from './env.js';
 
 /**
  * WebSocketManager — Handles real-time communication with the backend.
@@ -16,8 +17,8 @@ class WebSocketManager {
   connect() {
     if (this.socket || !authStore.token || !authStore.user) return;
 
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsUrl = `${protocol}//${window.location.host}/ws?userId=${authStore.user.id}`;
+    const wsBaseUrl = env.VITE_API_URL.replace(/^http/, "ws").replace(/\/$/, "");
+    const wsUrl = `${wsBaseUrl}/ws?userId=${authStore.user.id}`;
 
     console.warn("[WS] Connecting to", wsUrl);
     this.socket = new WebSocket(wsUrl);

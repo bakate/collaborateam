@@ -1,11 +1,10 @@
 import { Component } from '../core/Component.js';
 import { authStore } from '../core/AuthStore.js';
+import { apiClient } from '../core/APIClient.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
 import { createAuthCard } from '../core/AuthCard.js';
-
-const API_BASE = '/api';
 
 /**
  * LoginComponent — "Smart" component.
@@ -93,11 +92,7 @@ export class LoginComponent extends Component {
     this.setState({ loading: true, error: null });
 
     try {
-      const response = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await apiClient.post('/auth/login', { email, password });
 
       const data = await response.json();
 
@@ -120,7 +115,8 @@ export class LoginComponent extends Component {
       if (this.props.router) {
         this.props.router.navigate('/');
       }
-    } catch {
+    } catch (error) {
+      console.error('[LoginComponent] Error:', error);
       this.setState({ loading: false, error: 'Network error. Please try again.' });
     }
   }

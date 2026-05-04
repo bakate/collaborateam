@@ -2,7 +2,7 @@ import { env } from '@workspace/infrastructure/config/env';
 import { logger } from '@workspace/infrastructure/logger/logger';
 
 const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*', // Configurable in prod via env vars
+  'Access-Control-Allow-Origin': env.CORS_ORIGINS,
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 };
