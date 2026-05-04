@@ -157,7 +157,9 @@ collaborateam/
 │
 └── tooling/                     # Configuration partagée
     ├── vitest-config/           # Config Vitest
-    └── prettier/                # Config Prettier
+    ├── prettier/                # Config Prettier
+    ├── eslint-config/           # Config ESLint
+    └── e2e-tests/               # Tests E2E Playwright
 ```
 
 ### Flux de Dépendances

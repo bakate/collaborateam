@@ -5,7 +5,7 @@ import { glob } from "glob";
 async function collectCoverageFiles() {
   try {
     // Define the patterns to search
-    const patterns = ["../../apps/*", "../../packages/*"];
+    const patterns = ["../../apps/*", "../../packages/*", "../../tooling/*"];
 
     // Define the destination directory (you can change this as needed)
     const destinationDir = path.join(process.cwd(), "coverage/raw");
