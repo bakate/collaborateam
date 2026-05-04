@@ -187,6 +187,8 @@ export class TaskListComponent extends Component {
       const btn = document.createElement("button");
       btn.className = `view-toggle ${this.state.view === viewType ? "view-toggle--active" : ""}`;
       btn.textContent = viewType.charAt(0).toUpperCase() + viewType.slice(1);
+      btn.setAttribute("aria-label", `Switch to ${viewType} view`);
+      btn.setAttribute("aria-pressed", this.state.view === viewType);
       btn.addEventListener("click", () => {
         localStorage.setItem("taskView", viewType);
         this.setState({ view: viewType });
@@ -340,7 +342,7 @@ export class TaskListComponent extends Component {
   }
 
   _renderListView(tasks) {
-    const list = document.createElement("div");
+    const list = document.createElement("ul");
     list.className = "task-list__items";
     list.setAttribute("role", "list");
 
@@ -422,9 +424,14 @@ export class TaskListComponent extends Component {
         emptyCol.textContent = "No tasks";
         column.appendChild(emptyCol);
       } else {
+        const taskList = document.createElement("ul");
+        taskList.className = "kanban-column__tasks";
+        taskList.setAttribute("role", "list");
+
         colTasks.forEach((task) => {
-          column.appendChild(this._renderTaskItem(task));
+          taskList.appendChild(this._renderTaskItem(task));
         });
+        column.appendChild(taskList);
       }
 
       board.appendChild(column);
@@ -458,7 +465,7 @@ export class TaskListComponent extends Component {
 
   _renderTaskItem(task) {
     const isHighlighted = this.state.highlightedId === task.id;
-    const item = document.createElement("div");
+    const item = document.createElement("li");
     item.className = `task-card ${isHighlighted ? "task-card--highlight" : ""}`;
     item.dataset.taskId = task.id;
     item.draggable = true;
@@ -500,6 +507,8 @@ export class TaskListComponent extends Component {
       const dragHandle = document.createElement("div");
       dragHandle.className = "task-card__drag-handle";
       dragHandle.innerHTML = "⠿";
+      dragHandle.setAttribute("aria-label", "Drag to reorder");
+      dragHandle.title = "Drag to reorder";
       item.appendChild(dragHandle);
     } else {
       item.draggable = false;
@@ -521,6 +530,7 @@ export class TaskListComponent extends Component {
           ? Icons.play
           : Icons.check;
     statusBadge.className = `badge badge--${task.status.toLowerCase()}`;
+    statusBadge.setAttribute("aria-label", `Status: ${task.status.replace("_", " ")}`);
     statusBadge.innerHTML = `${badgeIcon} <span>${task.status.replace("_", " ")}</span>`;
     header.appendChild(statusBadge);
 

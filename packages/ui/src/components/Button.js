@@ -9,7 +9,8 @@ export const createButton = ({
   type = 'button',
   disabled = false,
   id,
-  icon, // New: SVG string
+  icon, // SVG string
+  ariaLabel, // New: explicit aria-label
 } = {}) => {
   const btn = document.createElement('button');
   btn.type = type;
@@ -29,9 +30,16 @@ export const createButton = ({
     textSpan.className = 'btn__text';
     textSpan.textContent = label;
     btn.appendChild(textSpan);
-  } else if (icon) {
+  }
+
+  // Accessibility: always ensure there is an accessible name
+  const finalAriaLabel = ariaLabel || label || id;
+  if (finalAriaLabel) {
+    btn.setAttribute('aria-label', finalAriaLabel);
+  }
+
+  if (!label && icon) {
     btn.classList.add('btn--icon-only');
-    btn.title = id || 'button';
   }
 
   return btn;

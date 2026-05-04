@@ -11,6 +11,7 @@ export const createModal = ({ id, title, content, onClose } = {}) => {
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-labelledby', `${id}-title`);
+  overlay.tabIndex = -1; // Allow focus
   overlay.hidden = true;
 
   const dialog = document.createElement('div');

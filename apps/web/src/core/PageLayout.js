@@ -1,5 +1,14 @@
 import { authStore } from "./AuthStore.js";
 import { WebSocketStatus } from "../components/WebSocketStatus.js";
+import { Icons } from "@workspace/ui/components/Icons";
+
+/**
+ * SEO Utility - Updates the document title
+ */
+const updatePageTitle = (title) => {
+  const brand = "Collaborateam";
+  document.title = title ? `${title} | ${brand}` : brand;
+};
 
 /**
  * PageLayout — Utility to create a consistent page structure with Header and Container.
@@ -12,6 +21,9 @@ export const createPageLayout = ({
   router,
   pageClass = "",
 }) => {
+  // 0. Update Document Title for SEO
+  updatePageTitle(title);
+
   const wrapper = document.createElement("div");
   wrapper.className = `main-layout ${pageClass}`;
 
@@ -56,7 +68,8 @@ export const createPageLayout = ({
   if (showBack) {
     const backBtn = document.createElement("button");
     backBtn.className = "btn-back";
-    backBtn.innerHTML = "←"; // Simple arrow for now
+    backBtn.innerHTML = Icons.arrowLeft;
+    backBtn.setAttribute("aria-label", "Go back to previous page");
     backBtn.title = "Go back";
     backBtn.addEventListener("click", onBack);
     sectionHeader.appendChild(backBtn);

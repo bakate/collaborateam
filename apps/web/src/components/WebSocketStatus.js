@@ -33,10 +33,12 @@ export class WebSocketStatus extends Component {
 
     const container = document.createElement('div');
     container.className = `ws-status ws-status--${status}`;
-    container.title = `WebSocket Connection: ${labels[status]}`;
+    container.setAttribute('role', 'status');
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('aria-label', `Connection status: ${labels[status]}`);
     container.innerHTML = `
       <span class="ws-status__dot"></span>
-      <span class="ws-status__label">${labels[status]}</span>
+      <span class="ws-status__label" aria-hidden="true">${labels[status]}</span>
     `;
 
     return container;

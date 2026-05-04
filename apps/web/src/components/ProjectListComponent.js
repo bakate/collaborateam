@@ -236,7 +236,7 @@ export class ProjectListComponent extends Component {
       const trigger = document.createElement("button");
       trigger.className = "project-card__menu-trigger";
       trigger.innerHTML = Icons.moreVertical;
-      trigger.title = "Project actions";
+      trigger.setAttribute("aria-label", "Project actions");
       dropdown.appendChild(trigger);
 
       const menu = document.createElement("div");

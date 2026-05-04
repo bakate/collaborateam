@@ -9,6 +9,7 @@ export class Router {
     this.routes = routes;
     this.container = container;
     this.currentComponent = null;
+    this._isRendering = false; // Guard for concurrent renders
 
     window.addEventListener('hashchange', () => this.resolve());
   }
@@ -63,12 +64,16 @@ export class Router {
       return this.navigate('/login');
     }
 
+    if (this._isRendering) return;
+    this._isRendering = true;
+
     // Clean up current component
     if (this.currentComponent) {
       this.currentComponent.unmount();
+      this.currentComponent = null;
     }
 
-    // Clear container
+    // Clear container immediately
     this.container.innerHTML = '';
 
     // Lazy Loading Support
@@ -103,5 +108,6 @@ export class Router {
     }
 
     this.currentComponent.mount(this.container);
+    this._isRendering = false;
   }
 }

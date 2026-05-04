@@ -15,7 +15,15 @@
  *   `container` — the same element; kept symmetric with createPageLayout's API
  *                 so callers can append form content to `container`.
  */
+const updatePageTitle = (title) => {
+  const brand = "Collaborateam";
+  document.title = title ? `${title} | ${brand}` : brand;
+};
+
 export const createAuthCard = ({ id, ariaLabel, title, footerHtml }) => {
+  // Update Document Title for SEO
+  updatePageTitle(title);
+
   const wrapper = document.createElement('section');
   wrapper.className = 'auth-card';
   wrapper.id = id;

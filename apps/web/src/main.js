@@ -24,7 +24,12 @@ const routes = [
   { path: '/projects/:projectId/tasks/:taskId/edit', component: () => import('./components/TaskFormComponent.js'), protected: true },
 ];
 
+let isInitialized = false;
+
 const init = async () => {
+  if (isInitialized) return;
+  isInitialized = true;
+
   // Clear loading state
   appContainer.innerHTML = '';
   
