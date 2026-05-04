@@ -2,7 +2,7 @@
 
 FROM oven/bun:alpine AS base
 WORKDIR /app
-# Install pnpm globally to ensure compatibility with the lockfile
+# Install pnpm globally using bun (npm is not available in the base image)
 RUN bun add -g pnpm@10.28.0
 
 # Stage 1: Pruning
@@ -12,11 +12,18 @@ RUN bun add -g turbo
 COPY . .
 RUN turbo prune @workspace/api --docker
 
-# Stage 2: Install dependencies
-FROM base AS installer
-COPY --from=pruner /app/out/json/ .
+# Stage 2: Install and link dependencies
+FROM base AS builder
+WORKDIR /app
+# Copy the full pruned source code first
+# This ensures pnpm can create valid symbolic links for workspace packages
+COPY --from=pruner /app/out/full/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
-# Use pnpm for installation because the lockfile is in pnpm v10 format
+
+# Set HUSKY=0 to skip husky install during pnpm install
+ENV HUSKY=0
+
+# Install dependencies (now workspace symlinks will be correct)
 RUN pnpm install --frozen-lockfile
 
 # Stage 3: Runner
@@ -29,9 +36,8 @@ RUN addgroup --system --gid 1001 nodejs && \
     
 ENV NODE_ENV=production
 
-# Copy pruned files and node_modules
-COPY --from=pruner /app/out/full/ .
-COPY --from=installer /app/node_modules ./node_modules
+# Copy everything from builder (including correctly linked node_modules)
+COPY --from=builder /app .
 
 # Ensure correct permissions
 RUN chown -R bunuser:nodejs /app

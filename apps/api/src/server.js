@@ -1,8 +1,8 @@
-import { env } from '@workspace/infrastructure/config/env';
-import { logger } from '@workspace/infrastructure/logger/logger';
-import { checkConnection } from '@workspace/infrastructure/db/db';
-import { runMigrations } from '@workspace/infrastructure/db/migrate';
-import { createBunWebSocketService } from '@workspace/infrastructure/websocket/BunWebSocketService';
+import { env } from '@workspace/infrastructure/config/env.js';
+import { logger } from '@workspace/infrastructure/logger/logger.js';
+import { checkConnection } from '@workspace/infrastructure/db/db.js';
+import { runMigrations } from '@workspace/infrastructure/db/migrate.js';
+import { createBunWebSocketService } from '@workspace/infrastructure/websocket/BunWebSocketService.js';
 import { applyMiddlewares } from './middlewares/wrapper.js';
 import { responseCache } from './middlewares/cache.js';
 import { handleAuthRoutes } from './routes/auth.routes.js';
