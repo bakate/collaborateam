@@ -6,6 +6,7 @@ import './styles/app.css';
 import { wsManager } from './core/WebSocketManager.js';
 import { Router } from './core/Router.js';
 import { authStore } from './core/AuthStore.js';
+import { projectStore } from './core/ProjectStore.js';
 
 const appContainer = document.getElementById('app');
 
@@ -34,7 +35,28 @@ const init = async () => {
   appContainer.innerHTML = '';
   
   // Initialize Auth
+  const wakeUpTimeout = setTimeout(() => {
+    appContainer.innerHTML = `
+      <div class="auth-layout">
+        <div class="auth-card" style="text-align: center;">
+          <div class="spinner" style="margin-bottom: var(--space-md);"></div>
+          <p style="color: var(--text-main); font-weight: 600;">Waking up the server...</p>
+          <p style="color: var(--text-muted); font-size: 0.875rem;">Render free tier is starting up (may take up to 60s)</p>
+        </div>
+      </div>
+    `;
+  }, 1500); // Show only if it takes > 1.5s
+
   await authStore.init();
+  clearTimeout(wakeUpTimeout);
+
+  // Prefetch projects if logged in
+  if (authStore.isAuthenticated) {
+    projectStore.prefetch();
+  }
+
+  // Clear loading state if not already cleared by timeout
+  appContainer.innerHTML = '';
 
   // Listen for auth changes to connect/disconnect WebSockets
   authStore.subscribe(({ isAuthenticated }) => {
@@ -42,6 +64,7 @@ const init = async () => {
       wsManager.connect();
     } else {
       wsManager.disconnect();
+      projectStore.clear();
     }
   });
 

@@ -6,6 +6,7 @@ import { createConfirmModal } from "@workspace/ui/components/Modal";
 import { Icons } from "@workspace/ui/components/Icons";
 import { apiClient } from "../core/APIClient.js";
 import { toast } from "../core/ToastManager.js";
+import { projectStore } from "../core/ProjectStore.js";
 
 /**
  * ProjectListComponent — "Smart" component.
@@ -17,16 +18,27 @@ import { toast } from "../core/ToastManager.js";
 export class ProjectListComponent extends Component {
   defaultState() {
     return {
-      projects: [],
-      loading: false,
-      error: null,
+      projects: projectStore.projects,
+      loading: projectStore.loading,
+      error: projectStore.error,
       mineOnly: false,
       confirmingDeleteId: null,
     };
   }
 
   onMount() {
-    this._fetchProjects();
+    this._unsubscribe = projectStore.subscribe((state) => {
+      this.setState({
+        projects: state.projects,
+        loading: state.loading,
+        error: state.error,
+      });
+    });
+
+    // If we don't have projects yet, fetch them (or use the one in progress)
+    if (projectStore.projects.length === 0) {
+      this._fetchProjects();
+    }
     this._setupEventListeners();
   }
 
@@ -71,6 +83,9 @@ export class ProjectListComponent extends Component {
   }
 
   onUnmount() {
+    if (this._unsubscribe) {
+      this._unsubscribe();
+    }
     if (this._closeDropdownsHandler) {
       document.removeEventListener("click", this._closeDropdownsHandler);
     }
@@ -161,7 +176,10 @@ export class ProjectListComponent extends Component {
 
     // Loading
     if (this.state.loading) {
-      container.appendChild(createSpinner({ label: "Loading projects" }));
+      const loader = document.createElement("div");
+      loader.className = "loader-centered";
+      loader.appendChild(createSpinner({ label: "Loading projects" }));
+      container.appendChild(loader);
       wrapper.appendChild(container);
       return wrapper;
     }
@@ -315,24 +333,9 @@ export class ProjectListComponent extends Component {
   }
 
   async _fetchProjects() {
-    this.setState({ loading: true, error: null });
-
     try {
-      const query = this.state.mineOnly ? "?mine=true" : "";
-      const response = await apiClient.get(`/projects${query}`);
-
-      if (!response.ok) {
-        const data = await response.json();
-        const errorMsg = data.error || "Failed to load projects";
-        this.setState({ loading: false, error: errorMsg });
-        toast.error(errorMsg);
-        return;
-      }
-
-      const data = await response.json();
-      this.setState({ loading: false, projects: data.projects });
+      await projectStore.fetchProjects(this.state.mineOnly);
     } catch (err) {
-      this.setState({ loading: false, error: err.message });
       toast.error(err.message);
     }
   }

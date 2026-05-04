@@ -16,13 +16,29 @@ export class TaskFilterComponent extends Component {
 
   defaultState() {
     return {
-      search: '',
-      status: 'all', // 'all', 'todo', 'in_progress', 'done'
+      search: this.props.search || '',
+      status: this.props.status || 'all', // 'all', 'todo', 'in_progress', 'done'
     };
   }
 
   onUnmount() {
     if (this._debounceTimer) clearTimeout(this._debounceTimer);
+  }
+
+  events() {
+    return {
+      'click [data-status-id]': '_onStatusClick',
+      'input #task-search': '_onSearchInput',
+    };
+  }
+
+  _onStatusClick(e, target) {
+    e.preventDefault();
+    this._handleStatusChange(target.dataset.statusId);
+  }
+
+  _onSearchInput(e, target) {
+    this._handleSearchInput(target.value);
   }
 
   render() {
@@ -39,9 +55,6 @@ export class TaskFilterComponent extends Component {
       placeholder: 'Type to filter...',
       value: this.state.search,
     });
-
-    const searchInput = searchField.querySelector('input');
-    searchInput.addEventListener('input', (e) => this._handleSearchInput(e.target.value));
 
     wrapper.appendChild(searchField);
 
@@ -70,10 +83,6 @@ export class TaskFilterComponent extends Component {
       btn.className = `btn btn--small ${this.state.status === status.id ? 'btn--primary' : 'btn--ghost'}`;
       btn.textContent = status.label;
       btn.dataset.statusId = status.id;
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        this._handleStatusChange(status.id);
-      });
       group.appendChild(btn);
     }
 

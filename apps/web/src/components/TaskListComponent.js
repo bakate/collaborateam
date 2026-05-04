@@ -8,6 +8,7 @@ import { TaskFilterComponent } from "./TaskFilterComponent.js";
 import { createButton, createSpinner } from "@workspace/ui/components/Button";
 import { createConfirmModal } from "@workspace/ui/components/Modal";
 import { Icons } from "@workspace/ui/components/Icons";
+import { projectStore } from "../core/ProjectStore.js";
 
 /**
  * TaskListComponent — "Smart" component.
@@ -32,9 +33,12 @@ const STATUS_COLUMNS = [
 
 export class TaskListComponent extends Component {
   defaultState() {
+    const sessionKey = `tasks_cache_${this.props.projectId}`;
+    const cached = JSON.parse(sessionStorage.getItem(sessionKey) || "null");
+
     return {
-      project: null, // Project metadata to check ownership
-      tasks: [],
+      project: null,
+      tasks: cached?.tasks || [],
       loading: false,
       error: null,
       draggingId: null,
@@ -43,9 +47,9 @@ export class TaskListComponent extends Component {
       status: "all",
       confirmingDeleteId: null,
       view: localStorage.getItem("taskView") || "list",
-      offset: 0,
+      offset: cached?.offset || 0,
       limit: 10,
-      hasMore: true,
+      hasMore: cached?.hasMore ?? true,
     };
   }
 
@@ -56,7 +60,10 @@ export class TaskListComponent extends Component {
 
   onMount() {
     this._fetchProject();
+    
+    // Always fetch fresh data, but cache in defaultState provides instant initial render
     this._fetchTasks();
+    
     this._setupEventListeners();
 
     // WS: Join project room
@@ -175,6 +182,18 @@ export class TaskListComponent extends Component {
         }
       }, 1500);
     }
+
+    // 3. Update session storage
+    this._saveToSession();
+  }
+
+  _saveToSession() {
+    const sessionKey = `tasks_cache_${this.props.projectId}`;
+    sessionStorage.setItem(sessionKey, JSON.stringify({
+      tasks: this.state.tasks,
+      offset: this.state.offset,
+      hasMore: this.state.hasMore
+    }));
   }
 
   render() {
@@ -260,8 +279,11 @@ export class TaskListComponent extends Component {
       pageClass: `task-list-page task-list-page--${this.state.view}`,
     });
 
-    if (this.state.loading && this.state.offset === 0) {
-      container.appendChild(createSpinner({ label: "Loading tasks" }));
+    if (this.state.loading && this.state.tasks.length === 0) {
+      const loader = document.createElement("div");
+      loader.className = "loader-centered";
+      loader.appendChild(createSpinner({ label: "Loading tasks" }));
+      container.appendChild(loader);
       wrapper.appendChild(container);
       return wrapper;
     }
@@ -296,6 +318,7 @@ export class TaskListComponent extends Component {
     });
 
     // 5. Build Final UI - First add filters
+    const filterContainer = document.createElement("div");
     const filterComp = new TaskFilterComponent({
       search: this.state.search,
       status: this.state.status,
@@ -304,7 +327,8 @@ export class TaskListComponent extends Component {
       this.setState({ ...filters });
       this._fetchTasks(); // Reset and re-fetch when filters change
     });
-    container.appendChild(filterComp.render());
+    container.appendChild(filterContainer);
+    filterComp.mount(filterContainer);
 
     // 6. Then add the tasks list/kanban
     const content =
@@ -629,6 +653,7 @@ export class TaskListComponent extends Component {
           confirmingDeleteId: null,
         });
         this.emit("task:deleted", { taskId });
+        projectStore.invalidate();
         toast.success("Task deleted");
       } else {
         const data = await response.json().catch(() => ({}));
@@ -672,9 +697,10 @@ export class TaskListComponent extends Component {
 
   async _fetchTasks(append = false) {
     const currentOffset = append ? this.state.offset : 0;
+    const isFirstLoad = !append;
 
     this.setState({
-      loading: true,
+      loading: isFirstLoad && this.state.tasks.length === 0, // Only show spinner if no cache
       error: null,
       ...(append ? {} : { offset: 0, hasMore: true }),
     });
@@ -692,12 +718,24 @@ export class TaskListComponent extends Component {
       const data = await response.json();
       const newTasks = data.tasks || [];
 
+      const finalTasks = append ? [...this.state.tasks, ...newTasks] : newTasks;
+      const finalOffset = currentOffset + newTasks.length;
+      const finalHasMore = newTasks.length === this.state.limit;
+
       this.setState({
         loading: false,
-        tasks: append ? [...this.state.tasks, ...newTasks] : newTasks,
-        offset: currentOffset + newTasks.length,
-        hasMore: newTasks.length === this.state.limit,
+        tasks: finalTasks,
+        offset: finalOffset,
+        hasMore: finalHasMore,
       });
+
+      // Save to session storage for refresh persistence
+      const sessionKey = `tasks_cache_${this.props.projectId}`;
+      sessionStorage.setItem(sessionKey, JSON.stringify({
+        tasks: finalTasks,
+        offset: finalOffset,
+        hasMore: finalHasMore
+      }));
     } catch (err) {
       this.setState({ loading: false, error: err.message });
       toast.error(err.message);

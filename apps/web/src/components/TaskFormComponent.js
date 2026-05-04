@@ -5,6 +5,7 @@ import { createForm, setFormError, clearFormError } from '@workspace/ui/componen
 import { createSpinner } from '@workspace/ui/components/Button';
 import { apiClient } from '../core/APIClient.js';
 import { toast } from '../core/ToastManager.js';
+import { projectStore } from '../core/ProjectStore.js';
 
 
 const TASK_STATUSES = [
@@ -196,6 +197,10 @@ export class TaskFormComponent extends Component {
 
       this.setState({ submitting: false, error: null });
       toast.success(isEdit ? 'Task updated' : 'Task created');
+      
+      // Invalidate project cache to update task counts
+      projectStore.invalidate();
+
       this.emit('task:saved', { task: data.task });
       if (this.props.router) {
         this.props.router.navigate(`/projects/${this.props.projectId}`);

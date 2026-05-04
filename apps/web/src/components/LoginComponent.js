@@ -5,6 +5,7 @@ import { createInput, showFieldError, clearFieldError } from '@workspace/ui/comp
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
 import { createSpinner } from '@workspace/ui/components/Button';
 import { createAuthCard } from '../core/AuthCard.js';
+import { projectStore } from '../core/ProjectStore.js';
 
 /**
  * LoginComponent — "Smart" component.
@@ -107,6 +108,9 @@ export class LoginComponent extends Component {
 
       // Update global AuthStore
       authStore.login(data.user, data.accessToken, data.refreshToken);
+
+      // Prefetch projects immediately after login
+      projectStore.prefetch();
 
       this.setState({ loading: false, error: null });
       this.emit('login:success', { user: data.user, accessToken: data.accessToken });

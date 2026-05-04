@@ -11,6 +11,7 @@ import { requireAuth } from "../middlewares/auth.js";
 import { wsService } from "../server.js";
 import { json } from "./response.js";
 import { isValidUuid } from "../core/validation.js";
+import { cache } from "../core/cache.js";
 
 const taskService = createTaskService({
   taskRepository: PostgresTaskRepository,
@@ -35,6 +36,10 @@ export const handleTaskRoutes = async (req, url) => {
     const limit = Number(url.searchParams.get("limit")) || 10;
     const offset = Number(url.searchParams.get("offset")) || 0;
 
+    const cacheKey = `tasks:${projectId}:${limit}:${offset}`;
+    const cached = cache.get(cacheKey);
+    if (cached) return json({ tasks: cached, source: 'cache' });
+
     const result = await taskService.findByProject({
       projectId,
       limit,
@@ -45,6 +50,7 @@ export const handleTaskRoutes = async (req, url) => {
       return json({ error: result.error.message }, status);
     }
 
+    cache.set(cacheKey, result.value, 300000); // 5 minutes cache
     return json({ tasks: result.value });
   }
 
@@ -83,6 +89,9 @@ export const handleTaskRoutes = async (req, url) => {
       data: result.value,
     });
 
+    // Invalidate project task cache
+    cache.clear(); // Simple invalidation for now, could be improved by prefix
+
     return json({ task: result.value }, 201);
   }
 
@@ -116,6 +125,9 @@ export const handleTaskRoutes = async (req, url) => {
       event: "task:reordered",
       data: validation.value.tasks,
     });
+
+    // Invalidate project task cache
+    cache.clear();
 
     return json({ message: "Tasks reordered successfully" });
   }
@@ -159,6 +171,9 @@ export const handleTaskRoutes = async (req, url) => {
       data: result.value,
     });
 
+    // Invalidate project task cache
+    cache.clear();
+
     return json({ task: result.value });
   }
 
@@ -195,6 +210,9 @@ export const handleTaskRoutes = async (req, url) => {
       event: "task:deleted",
       data: { id },
     });
+
+    // Invalidate project task cache
+    cache.clear();
 
     return json({ message: "Task deleted successfully" });
   }
