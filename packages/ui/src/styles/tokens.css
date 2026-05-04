@@ -5,9 +5,9 @@
   --surface-hover: #334155;
   --surface-border: #475569;
   
-  --primary-color: #6366f1;
-  --primary-hover: #818cf8;
-  --primary-glow: rgba(99, 102, 241, 0.25);
+  --primary-color: #4f46e5; /* Indigo 600 (4.5:1 on white and surfaces) */
+  --primary-hover: #4338ca; /* Indigo 700 */
+  --primary-glow: rgba(79, 70, 229, 0.25);
   
   --text-main: #f8fafc;
   --text-muted: #cbd5e1; /* Lighter for better contrast (Slate 300) */

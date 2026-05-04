@@ -136,7 +136,7 @@
 }
 
 .ws-status-indicator--disconnected .ws-status-dot {
-  background: #ef4444;
+  background: #f87171; /* Brighter red for better contrast on dark */
 }
 
 @keyframes pulse-orange {
@@ -386,10 +386,10 @@
 }
 
 .badge--you {
-  background: rgba(99, 102, 241, 0.2);
-  color: #818cf8;
-  border-color: rgba(99, 102, 241, 0.3);
-  font-size: 0.65rem;
+  background: rgba(79, 70, 229, 0.2); /* Indigo 600 at 20% */
+  color: #c7d2fe; /* Indigo 200 (Excellent contrast on dark surface) */
+  border-color: rgba(79, 70, 229, 0.3);
+  font-size: 0.7rem; /* Increased slightly */
   padding: 2px 8px;
 }
 
@@ -820,8 +820,8 @@
 
 .btn--icon-only {
   padding: var(--space-xs);
-  width: 36px;
-  height: 36px;
+  width: 44px; /* Increased for better tap target (Lighthouse) */
+  height: 44px;
   border-radius: var(--radius-full);
 }
 
@@ -903,7 +903,8 @@
   background: transparent;
   border: none;
   color: var(--text-muted);
-  padding: 8px;
+  width: 44px; /* Increased for better tap target */
+  height: 44px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
