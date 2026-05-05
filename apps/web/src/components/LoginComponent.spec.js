@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { LoginComponent } from './LoginComponent.js';
+import { env } from '../core/env.js';
 
 // Minimal Component base stub for jsdom context
 // (the real Component.js uses document which jsdom provides)
@@ -70,7 +71,7 @@ describe('LoginComponent', () => {
 
     await new Promise(resolve => setTimeout(resolve, 10));
 
-    expect(fetch).toHaveBeenCalledWith('/api/auth/login', expect.objectContaining({
+    expect(fetch).toHaveBeenCalledWith(`${env.VITE_API_URL}/auth/login`, expect.objectContaining({
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }));

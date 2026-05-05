@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { RegisterComponent } from './RegisterComponent.js';
+import { env } from '../core/env.js';
 
 describe('RegisterComponent', () => {
   let container;
@@ -109,7 +110,7 @@ describe('RegisterComponent', () => {
 
       await fillAndSubmit();
 
-      expect(fetch).toHaveBeenCalledWith('/api/auth/register', expect.objectContaining({
+      expect(fetch).toHaveBeenCalledWith(`${env.VITE_API_URL}/auth/register`, expect.objectContaining({
         method: 'POST',
       }));
     });

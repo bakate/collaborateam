@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { ProjectFormComponent } from './ProjectFormComponent.js';
+import { env } from '../core/env.js';
 
 const makeProject = (overrides = {}) => ({
   id: faker.string.uuid(),
@@ -71,7 +72,7 @@ describe('ProjectFormComponent', () => {
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
-      expect(fetch).toHaveBeenCalledWith('/api/projects', expect.objectContaining({
+      expect(fetch).toHaveBeenCalledWith(`${env.VITE_API_URL}/projects`, expect.objectContaining({
         method: 'POST',
       }));
     });
@@ -146,7 +147,7 @@ describe('ProjectFormComponent', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(putMock).toHaveBeenCalledWith(
-        `/api/projects/${project.id}`,
+        `${env.VITE_API_URL}/projects/${project.id}`,
         expect.objectContaining({ method: 'PUT' })
       );
     });

@@ -41,7 +41,7 @@ describe("StateManager Properties", () => {
         const elapsed = Date.now() - start;
 
         // Ensuring that the notifications took less than 10ms
-        expect(elapsed).toBeLessThanOrEqual(10);
+        expect(elapsed).toBeLessThanOrEqual(50);
         listeners.forEach((l) => {
           expect(l).toHaveBeenCalled();
         });

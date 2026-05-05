@@ -24,7 +24,7 @@ describe('TaskListComponent', () => {
     localStorage.setItem('accessToken', 'test_token');
     
     // Mock authStore user
-    vi.spyOn(authStore, 'user', 'get').mockReturnValue({ id: userId, email: 'test@example.com' });
+    vi.spyOn(authStore, 'user', 'get').mockReturnValue({ id: userId, email: 'test@example.com', username: 'testuser' });
   });
 
   afterEach(() => {

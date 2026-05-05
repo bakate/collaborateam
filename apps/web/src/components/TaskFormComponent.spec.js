@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { TaskFormComponent } from './TaskFormComponent.js';
+import { env } from '../core/env.js';
 
 const makeTask = (overrides = {}) => ({
   id: faker.string.uuid(),
@@ -82,7 +83,7 @@ describe('TaskFormComponent', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(fetch).toHaveBeenCalledWith(
-        `/api/projects/${projectId}/tasks`,
+        `${env.VITE_API_URL}/projects/${projectId}/tasks`,
         expect.objectContaining({ method: 'POST' })
       );
     });
@@ -161,7 +162,7 @@ describe('TaskFormComponent', () => {
       await new Promise(resolve => setTimeout(resolve, 10));
 
       expect(putMock).toHaveBeenCalledWith(
-        `/api/tasks/${task.id}`,
+        `${env.VITE_API_URL}/tasks/${task.id}`,
         expect.objectContaining({ method: 'PUT' })
       );
     });

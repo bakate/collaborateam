@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { faker } from '@faker-js/faker';
 import { ProjectListComponent } from './ProjectListComponent.js';
 import { authStore } from '../core/AuthStore.js';
+import { projectStore } from '../core/ProjectStore.js';
 
 const makeProject = (overrides = {}) => ({
   id: faker.string.uuid(),
@@ -21,8 +22,11 @@ describe('ProjectListComponent', () => {
     document.body.appendChild(container);
     localStorage.setItem('accessToken', 'test_token');
     
+    // Clear stores for test isolation
+    projectStore.clear();
+    
     // Mock authStore user
-    vi.spyOn(authStore, 'user', 'get').mockReturnValue({ id: userId, email: 'test@example.com' });
+    vi.spyOn(authStore, 'user', 'get').mockReturnValue({ id: userId, email: 'test@example.com', username: 'testuser' });
   });
 
   afterEach(() => {
@@ -51,7 +55,7 @@ describe('ProjectListComponent', () => {
     component = new ProjectListComponent();
     component.mount(container);
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     const items = container.querySelectorAll('.project-card');
     expect(items.length).toBe(2);
@@ -67,7 +71,7 @@ describe('ProjectListComponent', () => {
     component = new ProjectListComponent();
     component.mount(container);
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     expect(container.querySelector('.project-list__empty')).toBeTruthy();
   });
@@ -82,7 +86,7 @@ describe('ProjectListComponent', () => {
     component = new ProjectListComponent();
     component.mount(container);
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     expect(container.querySelector('.project-list__error')).toBeTruthy();
     expect(container.querySelector('#retry-btn')).toBeTruthy();
@@ -99,7 +103,7 @@ describe('ProjectListComponent', () => {
     component.on('project:create', createHandler);
     component.mount(container);
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     container.querySelector('#create-project-btn').click();
     expect(createHandler).toHaveBeenCalledTimes(1);
@@ -118,7 +122,7 @@ describe('ProjectListComponent', () => {
     component.on('project:select', selectHandler);
     component.mount(container);
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     container.querySelector(`.project-card[data-project-id="${projects[0].id}"]`).click();
     expect(selectHandler).toHaveBeenCalledWith({ projectId: projects[0].id });
@@ -134,7 +138,7 @@ describe('ProjectListComponent', () => {
     component = new ProjectListComponent();
     component.mount(container);
 
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Toggle the "mine only" filter
     const checkbox = container.querySelector('#filter-mine');

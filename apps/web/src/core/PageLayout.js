@@ -31,9 +31,10 @@ export const createPageLayout = ({
   const headerEl = document.createElement("header");
   headerEl.className = "app-header";
 
-  const userName =
-    authStore.user?.username.charAt(0).toUpperCase() +
-      authStore.user?.username.slice(1) || "User";
+  const userName = authStore.user?.username
+    ? authStore.user.username.charAt(0).toUpperCase() +
+      authStore.user.username.slice(1)
+    : "User";
 
   headerEl.innerHTML = `
       <div class="container">
