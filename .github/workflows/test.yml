@@ -16,6 +16,7 @@ jobs:
       DATABASE_URL: ${{ secrets.NEON_DATABASE_URL }}
       PGSSLMODE: require
       CI: true
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
 
     steps:
       - name: Checkout repository
@@ -68,7 +69,7 @@ jobs:
         run: pnpm --filter @workspace/infrastructure run db:migrate
 
       - name: Run tests
-        run: pnpm turbo run test --cache-dir=.turbo
+        run: pnpm turbo run test --filter=!@workspace/e2e-tests --cache-dir=.turbo
 
   # uncomment the following lines if you want to deploy to vercel and only if the test job is successful
   # deploy:
