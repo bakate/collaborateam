@@ -38,7 +38,7 @@ describe('UI Components', () => {
 
   describe('createInput()', () => {
     it('should create a labeled input with correct attributes', () => {
-      const id = faker.string.alphaNumeric(6);
+      const id = faker.string.alphanumeric(6);
       const label = faker.lorem.word();
       const placeholder = faker.lorem.sentence();
 
