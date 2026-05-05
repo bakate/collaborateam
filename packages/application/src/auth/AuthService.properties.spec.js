@@ -12,7 +12,10 @@ describe('AuthService Properties', () => {
         fc.boolean(), // Is the password matching?
         async (email, password, isUserFound, isPasswordMatching) => {
           // Setup Mocks
-          const userRepository = { findByEmail: vi.fn() };
+          const userRepository = { 
+            findByEmail: vi.fn(),
+            findByUsername: vi.fn()
+          };
           const passwordHasher = { verify: vi.fn() };
           const tokenService = { signAccess: vi.fn(), signRefresh: vi.fn() };
           const rateLimiter = { checkLimit: vi.fn().mockResolvedValue(true) };
@@ -49,31 +52,44 @@ describe('AuthService Properties', () => {
   it('Property 10: Successful Registration Creates User and Returns Token', async () => {
     await fc.assert(
       fc.asyncProperty(
+        fc.string({ minLength: 3 }), // username
         fc.emailAddress(),
         fc.string({ minLength: 8 }),
-        fc.boolean(), // Does user already exist?
-        async (email, password, userExists) => {
+        fc.boolean(), // Does email exist?
+        fc.boolean(), // Does username exist?
+        async (username, email, password, emailExists, usernameExists) => {
           // Setup Mocks
           const userRepository = { 
-            findByEmail: vi.fn().mockResolvedValue(userExists ? { id: '1' } : null),
-            create: vi.fn().mockResolvedValue({ id: 'new_id', email })
+            findByEmail: vi.fn().mockResolvedValue(emailExists ? { id: '1' } : null),
+            findByUsername: vi.fn().mockResolvedValue(usernameExists ? { id: '2' } : null),
+            create: vi.fn().mockResolvedValue({ id: 'new_id', email, username })
           };
           const passwordHasher = { hash: vi.fn().mockResolvedValue('hashed') };
-          const tokenService = { signAccess: vi.fn().mockResolvedValue('jwt_access'), signRefresh: vi.fn().mockResolvedValue('jwt_refresh') };
+          const tokenService = { 
+            signAccess: vi.fn().mockResolvedValue('jwt_access'), 
+            signRefresh: vi.fn().mockResolvedValue('jwt_refresh') 
+          };
           
           const authService = createAuthService({ 
             userRepository, passwordHasher, tokenService, rateLimiter: {} 
           });
 
-          const result = await authService.register({ email, password });
+          const result = await authService.register({ username, email, password });
 
-          if (userExists) {
+          if (emailExists) {
             expect(result.ok).toBe(false);
-            expect(result.error.message).toBe('User already exists');
+            expect(result.error.message).toBe('Email already exists');
+          } else if (usernameExists) {
+            expect(result.ok).toBe(false);
+            expect(result.error.message).toBe('Username already taken');
           } else {
             expect(result.ok).toBe(true);
             expect(result.value.accessToken).toBe('jwt_access');
-            expect(userRepository.create).toHaveBeenCalledWith({ email, passwordHash: 'hashed' });
+            expect(userRepository.create).toHaveBeenCalledWith({ 
+              username, 
+              email, 
+              passwordHash: 'hashed' 
+            });
           }
         }
       )

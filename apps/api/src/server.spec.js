@@ -32,7 +32,7 @@ describe('Backend Server Unit Tests', () => {
       const res = await wrappedHandler(req);
       
       expect(res.status).toBe(200);
-      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
+      expect(res.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:5173');
       expect(res.headers.get('X-Frame-Options')).toBe('SAMEORIGIN');
     });
 
@@ -71,6 +71,7 @@ describe('Backend Server Unit Tests', () => {
   describe('Database Migrations', () => {
     it('should run migrations successfully', async () => {
       sql.mockResolvedValueOnce([]); // Users
+      sql.mockResolvedValueOnce([]); // DO block (username check)
       sql.mockResolvedValueOnce([]); // Projects
       sql.mockResolvedValueOnce([]); // Tasks
       sql.mockResolvedValueOnce([]); // Index projects_owner_id
@@ -80,7 +81,7 @@ describe('Backend Server Unit Tests', () => {
       const result = await runMigrations();
       
       expect(result.ok).toBe(true);
-      expect(sql).toHaveBeenCalledTimes(6);
+      expect(sql).toHaveBeenCalledTimes(7);
       expect(logger.info).toHaveBeenCalledWith('Migrations completed successfully');
     });
 

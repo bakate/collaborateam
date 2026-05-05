@@ -319,10 +319,8 @@ export class ProjectListComponent extends Component {
       const response = await apiClient.delete(`/projects/${projectId}`);
       if (response.ok) {
         toast.success("Project deleted");
-        this.setState({
-          projects: this.state.projects.filter((p) => p.id !== projectId),
-          confirmingDeleteId: null,
-        });
+        projectStore.removeProject(projectId);
+        this.setState({ confirmingDeleteId: null });
       } else {
         throw new Error("Failed to delete project");
       }

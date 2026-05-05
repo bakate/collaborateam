@@ -12,6 +12,7 @@ describe('AuthService Unit Tests', () => {
   beforeEach(() => {
     userRepository = {
       findByEmail: vi.fn(),
+      findByUsername: vi.fn(),
       findById: vi.fn(),
       create: vi.fn(),
     };
@@ -101,15 +102,17 @@ describe('AuthService Unit Tests', () => {
   describe('register()', () => {
     it('should create a new user and return tokens', async () => {
       userRepository.findByEmail.mockResolvedValue(null);
+      userRepository.findByUsername.mockResolvedValue(null);
       passwordHasher.hash.mockResolvedValue('new_hash');
       
-      const mockUser = { id: faker.string.uuid(), email: 'test@test.com' };
+      const mockUser = { id: faker.string.uuid(), email: 'test@test.com', username: 'testuser' };
       userRepository.create.mockResolvedValue(mockUser);
       
       tokenService.signAccess.mockResolvedValue('acc_token');
       tokenService.signRefresh.mockResolvedValue('ref_token');
 
       const result = await authService.register({ 
+        username: 'testuser',
         email: 'test@test.com', 
         password: 'password123' 
       });
@@ -122,14 +125,16 @@ describe('AuthService Unit Tests', () => {
 
     it('should reject registration if user already exists', async () => {
       userRepository.findByEmail.mockResolvedValue({ id: '1' });
+      userRepository.findByUsername.mockResolvedValue(null);
 
       const result = await authService.register({ 
+        username: 'testuser',
         email: 'existing@test.com', 
         password: 'pw' 
       });
 
       expect(result.ok).toBe(false);
-      expect(result.error.message).toBe('User already exists');
+      expect(result.error.message).toBe('Email already exists');
       expect(userRepository.create).not.toHaveBeenCalled();
     });
   });

@@ -1,5 +1,4 @@
 import { Component } from '../core/Component.js';
-import { authStore } from '../core/AuthStore.js';
 import { createPageLayout } from '../core/PageLayout.js';
 import { createInput, showFieldError, clearFieldError } from '@workspace/ui/components/Input';
 import { createForm, setFormError, clearFormError } from '@workspace/ui/components/Form';
@@ -7,6 +6,7 @@ import { createSpinner } from '@workspace/ui/components/Button';
 import { apiClient } from '../core/APIClient.js';
 import { toast } from '../core/ToastManager.js';
 
+import { projectStore } from '../core/ProjectStore.js';
 
 /**
  * ProjectFormComponent — "Smart" component.
@@ -148,6 +148,13 @@ export class ProjectFormComponent extends Component {
 
       this.setState({ submitting: false, error: null });
       toast.success(this.isEditMode ? 'Project updated' : 'Project created');
+      
+      if (this.isEditMode) {
+        projectStore.updateProject(data.project);
+      } else {
+        projectStore.addProject(data.project);
+      }
+
       this.emit('project:saved', { project: data.project });
       if (this.props.router) this.props.router.navigate('/');
     } catch (err) {

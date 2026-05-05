@@ -12,7 +12,7 @@ describe('Database Transaction Helper (Integration)', () => {
     await sql`DELETE FROM users WHERE id = ${TEST_USER_ID}`;
     
     // Create a test user to satisfy foreign key constraint
-    await sql`INSERT INTO users (id, email, password_hash) VALUES (${TEST_USER_ID}, ${faker.internet.email()}, 'hash')`;
+    await sql`INSERT INTO users (id, username, email, password_hash) VALUES (${TEST_USER_ID}, ${faker.internet.username()}, ${faker.internet.email()}, 'hash')`;
   });
 
   it('should rollback changes if an error occurs inside withTransaction', async () => {

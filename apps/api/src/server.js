@@ -1,13 +1,13 @@
-import { env } from '@workspace/infrastructure/config/env.js';
-import { logger } from '@workspace/infrastructure/logger/logger.js';
-import { checkConnection } from '@workspace/infrastructure/db/db.js';
-import { runMigrations } from '@workspace/infrastructure/db/migrate.js';
-import { createBunWebSocketService } from '@workspace/infrastructure/websocket/BunWebSocketService.js';
-import { applyMiddlewares } from './middlewares/wrapper.js';
-import { responseCache } from './middlewares/cache.js';
-import { handleAuthRoutes } from './routes/auth.routes.js';
-import { handleProjectRoutes } from './routes/projects.routes.js';
-import { handleTaskRoutes } from './routes/tasks.routes.js';
+import { env } from "@workspace/infrastructure/config/env";
+import { logger } from "@workspace/infrastructure/logger/logger";
+import { checkConnection } from "@workspace/infrastructure/db/db";
+import { runMigrations } from "@workspace/infrastructure/db/migrate";
+import { createBunWebSocketService } from "@workspace/infrastructure/websocket/BunWebSocketService";
+import { applyMiddlewares } from "./middlewares/wrapper";
+import { responseCache } from "./middlewares/cache";
+import { handleAuthRoutes } from "./routes/auth.routes";
+import { handleProjectRoutes } from "./routes/projects.routes";
+import { handleTaskRoutes } from "./routes/tasks.routes";
 
 const PORT = env.PORT;
 
@@ -18,34 +18,41 @@ export const wsService = createBunWebSocketService();
 const router = async (req, server) => {
   const url = new URL(req.url);
 
-  if (url.pathname === '/health') {
+  if (url.pathname === "/health") {
     const isDbConnected = await checkConnection();
-    const status = isDbConnected ? 'ok' : 'degraded';
-    
-    return new Response(JSON.stringify({ 
-      status,
-      services: {
-        api: 'ok',
-        database: isDbConnected ? 'ok' : 'error'
+    const status = isDbConnected ? "ok" : "degraded";
+
+    return new Response(
+      JSON.stringify({
+        status,
+        services: {
+          api: "ok",
+          database: isDbConnected ? "ok" : "error",
+        },
+        timestamp: new Date().toISOString(),
+      }),
+      {
+        status: isDbConnected ? 200 : 503,
+        headers: { "Content-Type": "application/json" },
       },
-      timestamp: new Date().toISOString()
-    }), {
-      status: isDbConnected ? 200 : 503,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    );
   }
-  
+
   // WebSocket upgrade
-  if (url.pathname === '/ws') {
-    const userId = url.searchParams.get('userId');
+  if (url.pathname === "/ws") {
+    const userId = url.searchParams.get("userId");
     if (!userId) {
-      return new Response(JSON.stringify({ error: 'userId query param required' }), { 
-        status: 400, headers: { 'Content-Type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({ error: "userId query param required" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
     }
     const upgraded = server.upgrade(req, { data: { userId } });
     if (!upgraded) {
-      return new Response('WebSocket upgrade failed', { status: 500 });
+      return new Response("WebSocket upgrade failed", { status: 500 });
     }
     return undefined;
   }
@@ -60,13 +67,13 @@ const router = async (req, server) => {
   const taskResponse = await handleTaskRoutes(req, url);
   if (taskResponse) return taskResponse;
 
-  if (url.pathname === '/error') {
-    throw new Error('Simulated crash for testing global error handler');
+  if (url.pathname === "/error") {
+    throw new Error("Simulated crash for testing global error handler");
   }
 
-  return new Response(JSON.stringify({ error: 'Not Found' }), {
+  return new Response(JSON.stringify({ error: "Not Found" }), {
     status: 404,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { "Content-Type": "application/json" },
   });
 };
 
@@ -75,13 +82,13 @@ const websocket = {
   open(socket) {
     const { userId } = socket.data;
     wsService.registerClient({ userId, socket });
-    logger.info({ userId }, 'WebSocket client connected');
+    logger.info({ userId }, "WebSocket client connected");
   },
 
   close(socket) {
     const { userId } = socket.data;
     wsService.unregisterClient({ userId });
-    logger.info({ userId }, 'WebSocket client disconnected');
+    logger.info({ userId }, "WebSocket client disconnected");
   },
 
   message(socket, rawMessage) {
@@ -89,31 +96,33 @@ const websocket = {
       const { userId } = socket.data;
       const { action, projectId } = JSON.parse(rawMessage);
 
-      if (action === 'join' && projectId) {
+      if (action === "join" && projectId) {
         wsService.joinProject({ userId, projectId });
-        logger.info({ userId, projectId }, 'User joined project room');
-      } else if (action === 'leave' && projectId) {
+        logger.info({ userId, projectId }, "User joined project room");
+      } else if (action === "leave" && projectId) {
         wsService.leaveProject({ userId, projectId });
-        logger.info({ userId, projectId }, 'User left project room');
+        logger.info({ userId, projectId }, "User left project room");
       }
     } catch {
-      logger.warn('Received malformed WebSocket message');
+      logger.warn("Received malformed WebSocket message");
     }
-  }
+  },
 };
 
 const startServer = async () => {
-  logger.info('Starting Collaborateam API server...');
+  logger.info("Starting Collaborateam API server...");
 
   const dbOk = await checkConnection();
   if (dbOk) {
     const migrationResult = await runMigrations();
     if (!migrationResult.ok) {
-      logger.error('Failed to run migrations. Exiting...');
+      logger.error("Failed to run migrations. Exiting...");
       process.exit(1);
     }
   } else {
-    logger.warn('Could not connect to database. Continuing without DB for now...');
+    logger.warn(
+      "Could not connect to database. Continuing without DB for now...",
+    );
   }
 
   // Wrap router with cache middleware
@@ -138,4 +147,3 @@ if (import.meta.main) {
 }
 
 export { router, startServer };
-

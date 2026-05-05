@@ -58,6 +58,23 @@ class ProjectStore {
     }
   }
 
+  addProject(project) {
+    this._projects = [project, ...this._projects];
+    this._notify();
+  }
+
+  updateProject(updatedProject) {
+    this._projects = this._projects.map(p => 
+      p.id === updatedProject.id ? { ...p, ...updatedProject } : p
+    );
+    this._notify();
+  }
+
+  removeProject(projectId) {
+    this._projects = this._projects.filter(p => p.id !== projectId);
+    this._notify();
+  }
+
   subscribe(listener) {
     this._listeners.add(listener);
     return () => this._listeners.delete(listener);
