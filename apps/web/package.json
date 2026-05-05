@@ -7,8 +7,7 @@
     "@workspace/domain": "workspace:*",
     "@workspace/infrastructure": "workspace:*",
     "@workspace/ui": "workspace:*",
-    "vite": "^8.0.10",
-    "zod": "catalog:"
+    "vite": "^8.0.10"
   },
   "scripts": {
     "test": "vitest",

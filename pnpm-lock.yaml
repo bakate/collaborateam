@@ -112,9 +112,6 @@ importers:
       vite:
         specifier: ^8.0.10
         version: 8.0.10(@types/node@22.15.3)(esbuild@0.27.7)(jiti@2.6.1)(yaml@2.8.3)
-      zod:
-        specifier: 'catalog:'
-        version: 4.4.2
     devDependencies:
       '@faker-js/faker':
         specifier: 'catalog:'
